@@ -17,7 +17,7 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "main": "index.js",
+  "main": "adt/index.js",
   "scripts": {
     "clean": "rm -rf bin",
     "postinstall": "node adt/postInstall.js",
