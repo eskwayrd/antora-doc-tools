@@ -1,0 +1,37 @@
+{
+  "name": "antora-doc-tools",
+  "version": "1.0.0",
+  "license": "ISC",
+  "description": "Tools for building documentation with Antora",
+  "keywords": [
+    "antora",
+    "documentation",
+    "tools"
+  ],
+  "author": "Ewan Edwards <eskwayrd@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:eskwayrd/antora-doc-tools.git"
+  },
+  "bugs": "https://github.com/eskwayrd/antora-doc-tools/issues",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -rf bin",
+    "postinstall": "node adt/postInstall.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@antora/cli": "3.1.2",
+    "@antora/site-generator": "3.1.2",
+    "chalk": "4.1.0",
+    "elapsed-time": "0.0.1",
+    "gently-copy": "3.2.0",
+    "grunt": "1.6.1",
+    "grunt-cli": "1.4.3",
+    "minimist": "1.2.8",
+    "tmp": "0.2.1"
+  }
+}
