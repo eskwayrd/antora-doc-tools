@@ -74,7 +74,7 @@ const promote = () => {
 
   if (fs.existsSync(path.join(cwd, 'adt'))) {
     copied = true
-    u.debug(`${destPath} already exists... skip copy`)
+    u.debug(`${cwd}/adt already exists... skip copy`)
   }
   else {
     const toCopy = ['./adt', './Makefile']
