@@ -15,17 +15,26 @@ heading := $(b)$(cyan)
 
 buildDir := build
 
+## @section Build targets
+
 .PHONY: help
 help:
 	@MAKEFILES="$(MAKEFILE_LIST)" ./adt/generate_makefile_help.js
 
 .PHONY: antora
+## Build HTML for the documentation with Antora:
+## - https://antora.org/
+## - https://docs.antora.org/antora/latest/
 antora:
 	@echo "${heading}Generating HTML...${r}"
 	npx antora --fetch antora-playbook.yml
 
+## @section Validation targets
+
 .PHONY: links
-## Run htmltest to validate HTML links
+## Run htmltest to validate HTML links:
+## - https://github.com/wjdp/htmltest
+## @param EXTERNAL=true Check external links too.
 links:
 	@echo "${heading}Checking HTML links...${r}"
 ifdef EXTERNAL
@@ -35,15 +44,31 @@ else
 endif
 
 .PHONY: vale
-## Run vale, a spell+language checker
+## Run vale, a spell+language checker:
+## - https://github.com/errata-ai/vale
+## - https://vale.sh/docs/vale-cli/installation/
 vale:
 	@echo "${heading}Checking for spelling/language issues in HTML...${r}"
 	adt/bin/vale --config adt/vale/vale.ini ${buildDir}
 
+## @section Utility targets
+
+.PHONY: clean
+## Remove temporary build artifacts
+clean:
+	@echo "${heading}Cleaning build artifacts...${r}"
+	rm -rf build
+
+.PHONY: removeadt
+## Remove ADT and temporary build artifacts
+removeadt:
+	@echo "${heading}Removing ADT and build artifacts...${r}"
+	rm -rf adt build node_modules
+
 .PHONY: colorize
 ## Show all the colors.
 ## It's a long way to the bottom.
-## @param FRED=1.2.3.4 FRED controls what free sees.
+## @param FRED=1.2.3.4 FRED controls what fred sees.
 ## @param BOB=4.3.2 BOB cannot see anything.
 color:
 	echo "${b}BLACKISH${r}"
