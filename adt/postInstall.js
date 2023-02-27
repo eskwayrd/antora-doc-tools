@@ -47,7 +47,7 @@ const htmltest = () => {
 const vale = () => {
   u.log(chalk.bold('Installing vale...'))
   var command = `adt/vale/bin/install_vale.sh 2.23.0`
-  var [ output, errors, kill, stat ] = u.run(command, {}, 0)
+  var [ output, errors, kill, stat ] = u.run(command, process.env, 0)
   var installed = false
   if (errors && errors.length) {
     if (errors.match(/vale info installing vale/)) {
