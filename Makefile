@@ -17,11 +17,12 @@ buildDir := build
 
 .PHONY: help
 help:
-	@MAKEFILES="$(MAKEFILE_LIST)" ./generate_makefile_help.sh
-
-.PHONY: helpjs
-helpjs:
 	@MAKEFILES="$(MAKEFILE_LIST)" ./adt/generate_makefile_help.js
+
+.PHONY: antora
+antora:
+	@echo "${heading}Generating HTML...${r}"
+	npx antora --fetch antora-playbook.yml
 
 .PHONY: links
 ## Run htmltest to validate HTML links
@@ -38,7 +39,6 @@ endif
 vale:
 	@echo "${heading}Checking for spelling/language issues in HTML...${r}"
 	adt/bin/vale --config adt/vale/vale.ini ${buildDir}
-
 
 .PHONY: colorize
 ## Show all the colors.
