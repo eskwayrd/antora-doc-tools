@@ -30,10 +30,9 @@ if (!makefilelist || !makefilelist.length) {
 const t = TARGET('TARGET')
 const o = `${VARIABLE('OPTION')}=${VALUE('VALUE')}`
 console.log(`Usage: make [${t} [${t} ...]] [${o} [${o} ...]]`)
-console.log(SECTION('Targets:'))
+console.log(SECTION('General targets:'))
 console.log(`    ${TARGET('help')}`)
 console.log(`        Show available make targets.`)
-console.log()
 
 // Process each makefile
 for (const makefile of makefilelist.split(/\s|\n/)) {
@@ -51,7 +50,7 @@ for (const makefile of makefilelist.split(/\s|\n/)) {
     // handle sections
     if (mg = line.match(sectionRegex)) {
       var sectionName = mg[1]
-      console.log(`${SECTION(sectionName)}:`)
+      console.log(`\n${SECTION(sectionName)}:`)
       return
     }
 
@@ -63,7 +62,7 @@ for (const makefile of makefilelist.split(/\s|\n/)) {
       if (!(description && description.length)) return
 
       var targetName = mg[1]
-      console.log(`    ${TARGET(targetName)}${params}`)
+      console.log(`\n    ${TARGET(targetName)}${params}`)
       console.log(description)
       if (params) {
         console.log(`\n        Params:`)
@@ -79,7 +78,7 @@ for (const makefile of makefilelist.split(/\s|\n/)) {
     // handle params
     if (mg = line.match(paramRegex)) {
       params += ` ${VARIABLE(mg[1])}=${VALUE(mg[2])}`
-      params_doc += `\n        ${mg[1]}=${mg[2]}\t${mg[3]}`
+      params_doc += `\n        ${VARIABLE(mg[1])}=${VALUE(mg[2])}\t${mg[3]}`
       return
     }
 
