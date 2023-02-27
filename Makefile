@@ -13,22 +13,36 @@ white   := $(shell tput setaf 7)
 r       := $(shell tput sgr0)
 heading := $(b)$(cyan)
 
+docsDir := docs
 buildDir := build
-
-## @section Build targets
+SOURCES := $(shell find ${docsDir} -type f -name '*.adoc')
 
 .PHONY: help
 help:
 	@MAKEFILES="$(MAKEFILE_LIST)" ./adt/generate_makefile_help.js
 
-.PHONY: antora
+
+# ---------------------------------------------------------------------
+## @section Build targets
+
+#	@echo ${SOURCES}
+${buildDir}/index.html: ${SOURCES}
+	@echo "${heading}Building the documentation HTML...${r}"
+	npx antora --fetch antora-playbook.yml
+	@touch -m ${buildDir}/index.html
+
+.PHONY: docs
 ## Build HTML for the documentation with Antora:
 ## - https://antora.org/
 ## - https://docs.antora.org/antora/latest/
-antora:
-	@echo "${heading}Generating HTML...${r}"
-	npx antora --fetch antora-playbook.yml
+docs: ${buildDir}/index.html
 
+.PHONY: preview
+## Build the documentation HTML and start a web server to view it.
+preview: docs serve
+
+
+# ---------------------------------------------------------------------
 ## @section Validation targets
 
 .PHONY: links
@@ -51,6 +65,8 @@ vale:
 	@echo "${heading}Checking for spelling/language issues in HTML...${r}"
 	adt/bin/vale --config adt/vale/vale.ini ${buildDir}
 
+
+# ---------------------------------------------------------------------
 ## @section Utility targets
 
 .PHONY: clean
@@ -64,6 +80,13 @@ clean:
 removeadt:
 	@echo "${heading}Removing ADT and build artifacts...${r}"
 	rm -rf adt build node_modules
+
+.PHONY: serve
+## Start a web server to preview the documentation.
+serve:
+	@echo "${heading}Starting web server...${r}"
+	npx http-server ./${builddir} -r -x-1 -g
+
 
 .PHONY: colorize
 ## Show all the colors.
