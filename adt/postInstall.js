@@ -47,7 +47,7 @@ const htmltest = () => {
 
 const vale = () => {
   u.log(chalk.bold('Installing vale...'))
-  var command = `adt/vale/bin/install_vale.sh 2.23.0`
+  var command = `vale/bin/install_vale.sh 2.23.0`
   const env = { MYCWD: path.join(cwd, 'adt') }
   var [ output, errors, kill, stat ] = u.run(command, env, 0)
   var installed = false
