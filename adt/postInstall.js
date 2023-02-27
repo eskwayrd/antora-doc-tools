@@ -45,12 +45,12 @@ const htmltest = () => {
 }
 
 const vale = () => {
-  u.log(chalk.bold('Installing htmltest...'))
+  u.log(chalk.bold('Installing vale...'))
   var command = `adt/vale/bin/install_vale.sh 2.23.0`
   var [ output, errors, kill, stat ] = u.run(command, {}, 0)
   var installed = false
   if (errors && errors.length) {
-    if (errors.match(/htmltest info installed/)) {
+    if (errors.match(/vale info installing vale/)) {
       installed = true
     }
     else {
@@ -78,7 +78,7 @@ const promote = () => {
     u.debug(`${destPath} already exists... skip copy`)
   }
   else {
-    const toCopy = ['./adt', './bin']
+    const toCopy = ['./adt', './bin', './Makefile']
     gc(toCopy, destPath)
     copied = true
   }
