@@ -23,7 +23,7 @@ const cwd = process.env.INIT_CWD
 // Install html-test
 const htmltest = () => {
   u.log(chalk.bold('Installing htmltest...'))
-  const destPath = path.join(process.cwd(), 'bin')
+  const destPath = path.join(cwd(), 'adt', 'bin')
   var command = `curl https://htmltest.wjdp.uk | bash -s -- -b ${destPath}`
   var [ output, errors, kill, stat ] = u.run(command, {}, 0)
   var installed = false
@@ -87,6 +87,6 @@ const promote = () => {
   }
 }
 
+promote()
 vale()
 htmltest()
-promote()
