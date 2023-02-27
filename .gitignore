@@ -38,9 +38,9 @@ node_modules/
 .cache
 
 # Ignore folders created by ADT
-bin
-build
-tmp
+/bin/
+build/
+tmp/
 
 # Vim
 *.swp
