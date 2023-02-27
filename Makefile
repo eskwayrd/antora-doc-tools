@@ -28,16 +28,16 @@ helpjs:
 links:
 	@echo "${heading}Checking HTML links...${r}"
 ifdef EXTERNAL
-	bin/htmltest -c adt/htmltest-external.yml ${buildDir}
+	adt/bin/htmltest -c adt/htmltest-external.yml ${buildDir}
 else
-	bin/htmltest -c adt/htmltest.yml ${buildDir}
+	adt/bin/htmltest -c adt/htmltest.yml ${buildDir}
 endif
 
 .PHONY: vale
 ## Run vale, a spell+language checker
 vale:
 	@echo "${heading}Checking for spelling/language issues in HTML...${r}"
-	bin/vale --config adt/vale/vale.ini ${buildDir}
+	adt/bin/vale --config adt/vale/vale.ini ${buildDir}
 
 
 .PHONY: colorize
