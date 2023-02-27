@@ -21,9 +21,32 @@ const cwd = process.env.INIT_CWD
 
 // Install html-test
 const htmltest = () => {
-  u.log(chalk.bold('Installing html-test...'))
+  u.log(chalk.bold('Installing htmltest...'))
   const destPath = `${cwd}/bin`
   var command = `curl https://htmltest.wjdp.uk | bash -s -- -b ${destPath}`
+  var [ output, errors, kill, stat ] = u.run(command, {}, 0)
+  var installed = false
+  if (errors && errors.length) {
+    if (errors.match(/htmltest info installed/)) {
+      installed = true
+    }
+    else {
+      u.log(chalk.red('Failed to install'))
+      u.debug('output:')
+      u.debug('-=-=-=-', output, '=-=-=-=')
+      u.debug('errors:')
+      u.debug('-=-=-=-', errors, '=-=-=-=')
+    }
+  }
+
+  if (installed) {
+    u.log(chalk.green('OK'))
+  }
+}
+
+const vale = () => {
+  u.log(chalk.bold('Installing htmltest...'))
+  var command = `adt/vale/bin/install_vale.sh 2.23.0`
   var [ output, errors, kill, stat ] = u.run(command, {}, 0)
   var installed = false
   if (errors && errors.length) {
@@ -66,4 +89,5 @@ const promote = () => {
 }
 
 htmltest()
+vale()
 promote()

@@ -1,0 +1,26 @@
+extends: existence
+message: "Do not use phrases such as '%s'."
+level: error
+ignorecase: true
+tokens:
+  - and so on
+  - a number of
+  - a result of
+  - as well as
+  - at present
+  - at this point
+  - be sure to
+  - by means of
+  - check out    
+  - click on
+  - different than
+  - for instance
+  - in order to
+  - in the event of
+  - is unable
+  - of course    
+  - place the
+  - shows up    
+  - the manager
+  - variety of
+  - with respect to

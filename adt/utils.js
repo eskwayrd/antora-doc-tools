@@ -7,6 +7,7 @@ const exec    = require('child_process').execSync
 const tmp     = require('tmp')
 const util    = require('util')
 const Elapsed = require('elapsed-time')
+const YAML    = require('yaml')
 
 // color definitions for diffs
 const diffColors = {
@@ -182,6 +183,37 @@ String.prototype.replaceAt = function(index, replacement, l = 0) {
 }
 
 // --------------------------------------------------------------------
+// Finds the path to `antora-playbook.yml`
+const findPlaybook = (folder = '.', file = 'antora-playbook.yml') => {
+  const pathParts = path.normalize(folder).split(path.sep)
+  var result = null
+
+  while (pathParts.length && !result) {
+    const current = pathParts.join(path.sep) + path.sep + file
+    if (fs.existsSync(current)) {
+      result = current
+    }
+
+    pathParts.pop()
+  }
+
+  return result
+}
+
+// --------------------------------------------------------------------
+// Read `antora-playbook.yml` and return its configuration
+const getPlaybook = () => {
+  const pbPath = findPlaybook()
+  if (!pbPath) {
+    log(chalk.red('Cannot find the playbook file!'))
+    process.exit(1)
+  }
+
+  const playbook = fs.readFileSync(pbPath, { encoding: 'utf8' })
+  return YAML.parse(playbook)
+}
+
+// --------------------------------------------------------------------
 // Run a "program" with the supplied command, returning captured output
 const run = (command, localEnv = {}, ignoreStatus = 0) => {
   var output = ''
@@ -337,6 +369,8 @@ module.exports = {
   DEBUG,
   DEBUG_PREFIX,
   exit,
+  findPlaybook,
+  getPlaybook,
   inspect: util.inspect,
   log,
   minIndent,

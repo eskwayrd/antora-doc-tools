@@ -1,0 +1,7 @@
+extends: spelling
+message: "'%s'?"
+dicpath: dictionaries
+dictionaries:
+  - en_US-large
+  - JTI
+level: error

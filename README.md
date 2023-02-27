@@ -39,14 +39,14 @@ folder.
 ## Tools
 
 The tools are a collection of one-off Node.js scripts, Antora and
-Asciidoctor extensions, plus Go binaries.
-
-Antora builds use `grunt` to generate HTML and perform the CI checks.
-For example:
+Asciidoctor extensions, plus Go binaries. `make` is used for build
+coordination.
 
 ```
-grunt build
+make build
 ```
+
+Run `make help` to display documentation for the available targets.
 
 
 ## Contributing

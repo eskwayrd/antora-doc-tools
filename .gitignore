@@ -37,8 +37,10 @@ node_modules/
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 
-# The `bin` folder
+# Ignore folders created by ADT
 bin
+build
+tmp
 
 # Vim
 *.swp

@@ -1,0 +1,28 @@
+extends: existence
+message: "Don't use needless words such as '%s'."
+ignorecase: true
+level: error
+tokens:
+  - actually
+  - always
+  # - any (that's an FQL v4 function, so cannot be included here).
+  - basically
+  - both
+  - certain
+  - completely
+  - definitely
+  # - each
+  - either
+  - essentially
+  - just
+  - particular
+  - please
+  - quite
+  - really
+  - respective
+  - respectively
+  - simply
+  - specifically
+  - specified
+  - totally
+  - very
