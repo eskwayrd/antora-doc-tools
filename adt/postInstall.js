@@ -88,6 +88,6 @@ const promote = () => {
   }
 }
 
-htmltest()
 vale()
+htmltest()
 promote()
