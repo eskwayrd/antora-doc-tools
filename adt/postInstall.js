@@ -7,6 +7,7 @@
 const chalk = require('chalk')
 const fs    = require('fs')
 const gc    = require('gently-copy')
+const path  = require('path')
 const u     = require('./utils')
 
 u.DEBUG_PREFIX = 'postInstall'
@@ -47,7 +48,8 @@ const htmltest = () => {
 const vale = () => {
   u.log(chalk.bold('Installing vale...'))
   var command = `adt/vale/bin/install_vale.sh 2.23.0`
-  var [ output, errors, kill, stat ] = u.run(command, process.env, 0)
+  const env = { MYCWD: cwd }
+  var [ output, errors, kill, stat ] = u.run(command, env, 0)
   var installed = false
   if (errors && errors.length) {
     if (errors.match(/vale info installing vale/)) {
@@ -69,17 +71,15 @@ const vale = () => {
 
 // copy adt to project root
 const promote = () => {
-  const destPath = `${cwd}/adt`
-  u.debug(`destPath: ${destPath}`)
   var copied = false
 
-  if (fs.existsSync(destPath)) {
+  if (fs.existsSync(path.join(cwd, 'adt'))) {
     copied = true
     u.debug(`${destPath} already exists... skip copy`)
   }
   else {
-    const toCopy = ['./adt', './bin', './Makefile']
-    gc(toCopy, destPath)
+    const toCopy = ['./adt', './Makefile']
+    gc(toCopy, cwd)
     copied = true
   }
 
