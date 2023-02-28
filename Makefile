@@ -17,13 +17,23 @@ docsDir := docs
 buildDir := build
 SOURCES := $(shell find ${docsDir} -type f -name '*.adoc')
 
-.PHONY: help
-help:
-	@MAKEFILES="$(MAKEFILE_LIST)" ./adt/generate_makefile_help.js
-
 
 # ---------------------------------------------------------------------
 ## @section Build targets
+
+.PHONY: docs
+## Build the documentation, run the checks, then preview the site.
+docs: html checks preview
+
+.PHONY: html
+## Build HTML for the documentation with Antora:
+## - https://antora.org/
+## - https://docs.antora.org/antora/latest/
+html: ${buildDir}/index.html
+
+.PHONY: preview
+## Build the documentation HTML and start a web server to view it.
+preview: docs serve
 
 #	@echo ${SOURCES}
 ${buildDir}/index.html: ${SOURCES}
@@ -31,19 +41,13 @@ ${buildDir}/index.html: ${SOURCES}
 	npx antora --fetch antora-playbook.yml
 	@touch -m ${buildDir}/index.html
 
-.PHONY: docs
-## Build HTML for the documentation with Antora:
-## - https://antora.org/
-## - https://docs.antora.org/antora/latest/
-docs: ${buildDir}/index.html
-
-.PHONY: preview
-## Build the documentation HTML and start a web server to view it.
-preview: docs serve
-
 
 # ---------------------------------------------------------------------
 ## @section Validation targets
+
+.PHONY: checks
+## Runs all of the check targets.
+checks: links vale
 
 .PHONY: links
 ## Run htmltest to validate HTML links:
@@ -69,6 +73,7 @@ else
 	@adt/bin/vale --config adt/vale/vale.ini ${buildDir}
 endif
 
+
 # ---------------------------------------------------------------------
 ## @section Utility targets
 
@@ -90,19 +95,6 @@ serve:
 	@echo "${heading}Starting web server...${r}"
 	npx http-server ./${builddir} -r -x-1 -g
 
-
-.PHONY: colorize
-## Show all the colors.
-## It's a long way to the bottom.
-## @param FRED=1.2.3.4 FRED controls what fred sees.
-## @param BOB=4.3.2 BOB cannot see anything.
-color:
-	echo "${b}BLACKISH${r}"
-	echo "${BLACK}BLACK${RESET}"
-	echo "${RED}RED${RESET}"
-	echo "${GREEN}GREEN${RESET}"
-	echo "${YELLOW}YELLOW${RESET}"
-	echo "${LIGHTPURPLE}LIGHTPURPLE${RESET}"
-	echo "${PURPLE}PURPLE${RESET}"
-	echo "${BLUE}BLUE${RESET}"
-	echo "${WHITE}WHITE${RESET}"
+.PHONY: help
+help:
+	@MAKEFILES="$(MAKEFILE_LIST)" ./adt/generate_makefile_help.js
