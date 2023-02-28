@@ -79,7 +79,7 @@ const promote = () => {
   }
   else {
     const toCopy = ['./adt', './Makefile']
-    gc(toCopy, cwd)
+    gc(toCopy, cwd, { overwrite: true })
     copied = true
   }
 
