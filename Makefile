@@ -53,7 +53,7 @@ checks: links vale
 ## Run htmltest to validate HTML links:
 ## - https://github.com/wjdp/htmltest
 ## @param EXTERNAL=true Check external links too.
-links:
+links: html
 	@echo "${heading}Checking HTML links...${r}"
 ifdef EXTERNAL
 	adt/bin/htmltest -c adt/htmltest/config-external.yml ${buildDir}
@@ -65,7 +65,7 @@ endif
 ## Run vale, a spell+language checker:
 ## - https://github.com/errata-ai/vale
 ## - https://vale.sh/docs/vale-cli/installation/
-vale:
+vale: html
 	@echo "${heading}Checking for spelling/language issues in HTML...${r}"
 ifdef (QUICK)
 	@node adt/bin/vale_modified_files.js
@@ -91,7 +91,7 @@ removeadt:
 
 .PHONY: serve
 ## Start a web server to preview the documentation.
-serve:
+serve: html
 	@echo "${heading}Starting web server...${r}"
 	npx http-server ./${builddir} -r -x-1 -g
 
