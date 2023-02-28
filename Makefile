@@ -52,9 +52,9 @@ preview: docs serve
 links:
 	@echo "${heading}Checking HTML links...${r}"
 ifdef EXTERNAL
-	adt/bin/htmltest -c adt/htmltest-external.yml ${buildDir}
+	adt/bin/htmltest -c adt/htmltest/config-external.yml ${buildDir}
 else
-	adt/bin/htmltest -c adt/htmltest.yml ${buildDir}
+	adt/bin/htmltest -c adt/htmltest/config.yml ${buildDir}
 endif
 
 .PHONY: vale
@@ -63,8 +63,11 @@ endif
 ## - https://vale.sh/docs/vale-cli/installation/
 vale:
 	@echo "${heading}Checking for spelling/language issues in HTML...${r}"
-	adt/bin/vale --config adt/vale/vale.ini ${buildDir}
-
+ifdef (QUICK)
+	@node adt/bin/vale_modified_files.js
+else
+	@adt/bin/vale --config adt/vale/vale.ini ${buildDir}
+endif
 
 # ---------------------------------------------------------------------
 ## @section Utility targets

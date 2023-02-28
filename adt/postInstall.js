@@ -23,12 +23,12 @@ const cwd = process.env.INIT_CWD
 // Install html-test
 const htmltest = () => {
   u.log(chalk.bold('Installing htmltest...'))
-  const destPath = path.join(cwd, 'adt', 'bin')
-  var command = `curl https://htmltest.wjdp.uk | bash -s -- -b ${destPath}`
+  var command = `htmltest/bin/install.sh 0.17.0`
+  const env = { MYCWD: path.join(cwd, 'adt') }
   var [ output, errors, kill, stat ] = u.run(command, {}, 0)
   var installed = false
   if (errors && errors.length) {
-    if (errors.match(/htmltest info installed/)) {
+    if (errors.match(/htmltest info installing htmltest/)) {
       installed = true
     }
     else {
@@ -47,7 +47,7 @@ const htmltest = () => {
 
 const vale = () => {
   u.log(chalk.bold('Installing vale...'))
-  var command = `vale/bin/install_vale.sh 2.23.0`
+  var command = `vale/bin/install.sh 2.23.0`
   const env = { MYCWD: path.join(cwd, 'adt') }
   var [ output, errors, kill, stat ] = u.run(command, env, 0)
   var installed = false

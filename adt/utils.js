@@ -84,6 +84,7 @@ const inspectOptions = {
   depth: null,
   maxArrayLength: null,
 }
+
 const debug = (...msgs) => {
   const d = module.exports.DEBUG
   const p = module.exports.DEBUG_PREFIX
@@ -211,6 +212,63 @@ const getPlaybook = () => {
 
   const playbook = fs.readFileSync(pbPath, { encoding: 'utf8' })
   return YAML.parse(playbook)
+}
+
+// --------------------------------------------------------------------
+// read the playbook, to find out where the built HTML lives
+const getBuildPath = () => {
+  const playbook = getPlaybook()
+  const playbookBuildPath = playbook.output.dir
+  const buildPath = path.resolve(
+    path.dirname(playbookBuildPath),
+    playbookBuildPath
+  )
+  return buildPath
+}
+
+// --------------------------------------------------------------------
+// Run git to find out which files are modified
+const modifiedFiles = () => {
+  var command = `git -c core.quotepath=false diff --name-status HEAD`
+  var [ output, errors, kill ] = run(command)
+  if (kill) {
+    console.log(`Collecting Git modified files terminated!`)
+    process.exit(1)
+  }
+
+  if (errors.length) {
+    console.log(`Gathering Git modified files failed:\n`)
+    console.log(errors)
+    process.exit(1)
+  }
+
+  // Only collect Asciidoc files
+  const gitFiles = []
+  output.split(/\r?\n/).map((cur, index) => {
+    if (!cur || cur === '') return
+    var mg
+    if (mg = cur.match(/^([ABCDMRTUX\*]\d*?)\t(.+)$/)) {
+      const disp = mg[1]
+      if (disp === 'D') return
+
+      var filePath = mg[2].split("\t")
+      filePath = filePath[filePath.length - 1]
+
+      if (
+        filePath &&
+        filePath.length &&
+        path.extname(filePath) === '.adoc'
+      ) {
+        gitFiles.push(filePath)
+      }
+    }
+    else {
+      console.log(`Unknown git status: ${cur}`)
+      process.exit(1)
+    }
+  })
+
+  return gitFiles
 }
 
 // --------------------------------------------------------------------
@@ -370,10 +428,12 @@ module.exports = {
   DEBUG_PREFIX,
   exit,
   findPlaybook,
+  getBuildPath,
   getPlaybook,
   inspect: util.inspect,
   log,
   minIndent,
+  modifiedFiles,
   myTypeOf,
   run,
   startTimer,
