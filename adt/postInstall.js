@@ -25,7 +25,7 @@ const htmltest = () => {
   u.log(chalk.bold('Installing htmltest...'))
   var command = `htmltest/bin/install.sh 0.17.0`
   const env = { MYCWD: path.join(cwd, 'adt') }
-  var [ output, errors, kill, stat ] = u.run(command, {}, 0)
+  var [ output, errors, kill, stat ] = u.run(command, env, 0)
   var installed = false
   if (errors && errors.length) {
     if (errors.match(/htmltest info installing htmltest/)) {
