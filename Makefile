@@ -23,17 +23,25 @@ SOURCES := $(shell find ${docsDir} -type f -name '*.adoc')
 
 .PHONY: docs
 ## Build the documentation, run the checks, then preview the site.
+## @param FORCE=true Force HTML generation.
 docs: html checks preview
 
 .PHONY: html
 ## Build HTML for the documentation with Antora:
 ## - https://antora.org/
 ## - https://docs.antora.org/antora/latest/
-html: ${buildDir}/index.html
+## @param FORCE=true Force HTML generation.
+html: force ${buildDir}/index.html
 
 .PHONY: preview
 ## Build the documentation HTML and start a web server to view it.
 preview: docs serve
+
+.PHONY: force
+force:
+ifdef FORCE
+	@touch ${docsDir}/poc/modules/ROOT/nav.adoc
+endif
 
 #	@echo ${SOURCES}
 ${buildDir}/index.html: ${SOURCES}
@@ -93,7 +101,7 @@ removeadt:
 ## Start a web server to preview the documentation.
 serve: html
 	@echo "${heading}Starting web server...${r}"
-	npx http-server ./${builddir} -r -x-1 -g
+	npx http-server ./${buildDir} -r -x-1 -g
 
 .PHONY: help
 help:
