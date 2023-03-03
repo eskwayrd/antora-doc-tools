@@ -5,13 +5,11 @@ level: error
 tokens:
   - actually
   - always
-  # - any (that's an FQL v4 function, so cannot be included here).
   - basically
   - both
   - certain
   - completely
   - definitely
-  # - each
   - either
   - essentially
   - just
