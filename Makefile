@@ -13,9 +13,10 @@ white   := $(shell tput setaf 7)
 r       := $(shell tput sgr0)
 heading := $(b)$(cyan)
 
-docsDir := docs
-buildDir := build
-SOURCES := $(shell find ${docsDir} -type f -name '*.adoc')
+docsDir       := docs
+buildDir      := $(shell adt/get_pbv.js output.dir)
+uiBundleRepo  := $(shell adt/get_pbv.js asciidoc.attributes.ui_bundle_repo)
+SOURCES       := $(shell find ${docsDir} -type f -name '*.adoc')
 
 
 # ---------------------------------------------------------------------
@@ -43,10 +44,19 @@ ifdef FORCE
 	@touch ${docsDir}/poc/modules/ROOT/nav.adoc
 endif
 
+.PHONY: getui
+## Downloads the eCourt UI from a GitHub release asset
+## Requires an authenticated GitLab CI!
+getui:
+ifneq (,${uiBundleRepo})
+	@echo "${heading}Fetching the UI bundle release asset...${r}"
+	adt/download_ui.js
+endif
+
 #	@echo ${SOURCES}
-${buildDir}/index.html: ${SOURCES}
+${buildDir}/index.html: getui ${SOURCES}
 	@echo "${heading}Building the documentation HTML...${r}"
-	npx antora --fetch antora-playbook.yml
+	npx antora --stacktrace --fetch antora-playbook.yml
 	@touch -m ${buildDir}/index.html
 
 
