@@ -3,4 +3,5 @@ message: "'%s'?"
 dicpath: adt/dictionaries
 dictionaries:
   - en_US-large
+  - antora
 level: error
