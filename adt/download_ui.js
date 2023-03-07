@@ -9,6 +9,7 @@
 // with `gh auth login`.
 
 const chalk = require('chalk')
+const fs    = require('fs')
 const u     = require('./utils')
 
 const playbook = u.getPlaybook()
@@ -29,6 +30,18 @@ if (!repo && !repo.length) {
   u.log('the Antora playbook file, at: asiidoc.attributes.ui_bundle_repo')
   process.exit(1)
 }
+
+// If there is an existing bundle, and it is "new", don't download.
+const uiBundleUrl = playbook.ui?.bundle?.url || ''
+if (uiBundleUrl && fs.existsSync(uiBundleUrl)) {
+  const stat = fs.statSync(uiBundleUrl)
+  const threshold = Date.now() - (3600 * 1000) // 1 hour
+  if (stat.mtime.valueOf() > threshold) {
+    u.log('Bundle downloaded less than an hour ago, skipping download.')
+    process.exit(0)
+  }
+}
+
 
 if (process.stdout.isTTY) {
   process.stdout.write(`Downloading UI from ${chalk.bold(repo)}: `)
