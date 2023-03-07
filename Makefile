@@ -16,7 +16,9 @@ heading := $(b)$(cyan)
 docsDir       := docs
 buildDir      := $(shell adt/get_pbv.js output.dir)
 uiBundleRepo  := $(shell adt/get_pbv.js asciidoc.attributes.ui_bundle_repo)
+uiBundlePath  := $(shell adt/get_pbv.js ui.bundle.url)
 SOURCES       := $(shell find ${docsDir} -type f -name '*.adoc')
+SOURCES += antora-playbook.yml
 
 
 # ---------------------------------------------------------------------
@@ -32,7 +34,7 @@ docs: html checks preview
 ## - https://antora.org/
 ## - https://docs.antora.org/antora/latest/
 ## @param FORCE=true Force HTML generation.
-html: force ${buildDir}/index.html
+html: force getui ${buildDir}/index.html
 
 .PHONY: preview
 ## Build the documentation HTML and start a web server to view it.
@@ -41,7 +43,8 @@ preview: docs serve
 .PHONY: force
 force:
 ifdef FORCE
-	@touch ${docsDir}/poc/modules/ROOT/nav.adoc
+	@rm -rf ${buildDir}
+	@rm ${uiBundlePath}
 endif
 
 .PHONY: getui
@@ -50,12 +53,13 @@ endif
 getui:
 ifneq (,${uiBundleRepo})
 	@echo "${heading}Fetching the UI bundle release asset...${r}"
-	adt/download_ui.js
+	@adt/download_ui.js
 endif
 
 #	@echo ${SOURCES}
-${buildDir}/index.html: getui ${SOURCES}
+${buildDir}/index.html: ${SOURCES}
 	@echo "${heading}Building the documentation HTML...${r}"
+	@rm -rf ${buildDir}
 	npx antora --stacktrace --fetch antora-playbook.yml
 	@touch -m ${buildDir}/index.html
 
@@ -109,9 +113,15 @@ removeadt:
 
 .PHONY: serve
 ## Start a web server to preview the documentation.
-serve: html
+serve: force html
 	@echo "${heading}Starting web server...${r}"
 	npx http-server ./${buildDir} -r -x-1 -g
+
+.PHONY: test
+## Run the extension tests.
+test:
+	@echo "${heading}Running tests...${r}"
+	npx ava adt/tests
 
 .PHONY: help
 help:
