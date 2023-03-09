@@ -1,5 +1,13 @@
 # antora-doc-tools
 
+[CAUTION]
+=========
+Antora search has matured notably since this repo was created.
+**This repo is no longer maintained, and has been archived for posterity.**
+
+You should use the https://gitlab.com/antora/antora-lunr-extension[`antora-lunr`] extension with Antora 3.1.x for your Antora-generated documentation search needs.
+=========
+
 Tools for building documentation with Antora.
 
 ## Concept
