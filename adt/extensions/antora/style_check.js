@@ -581,7 +581,7 @@ const check = (contents) => {
 
         if (word.includes('&')) {
           result.errors.push(
-            `${error('Mechanics')} ${formatted}: Do not use "&" unless referring to a literal.`
+            `${warning('Mechanics')} ${formatted}: Do not use "&" unless referring to a literal.`
           )
         }
       }
