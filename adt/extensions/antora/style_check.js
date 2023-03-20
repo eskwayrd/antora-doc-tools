@@ -519,6 +519,11 @@ const check = (contents) => {
       return
     }
 
+    if (line.match(/\/\/ vim:/)) {
+      u.debug(`Skipping Vim modeline...`)
+      return
+    }
+
     // perform checks
     u.debug('Splitting words...')
     var words = line.split(/\s+/)
