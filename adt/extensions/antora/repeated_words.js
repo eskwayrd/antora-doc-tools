@@ -62,7 +62,7 @@ const check = (contents, repeats = validRepeats) => {
           return
         }
 
-        if (delimited == '') {
+        if (delimiter == '') {
           // initial delimiter found
           delimiter = mg[1]
           return
