@@ -17,7 +17,7 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "main": "adt/index.js",
+  "main": "index.js",
   "scripts": {
     "clean": "rm -rf bin",
     "postinstall": "echo $INIT_CWD; pwd; set; echo 'pI'; node adt/postInstall.js",
