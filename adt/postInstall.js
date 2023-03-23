@@ -15,6 +15,7 @@ u.DEBUG_PREFIX = 'postInstall'
 // process arguments
 var argv = require('minimist')(process.argv.slice(2))
 if ('v' in argv) u.DEBUG = true
+u.DEBUG = true
 
 const cwd = process.env.INIT_CWD
   ? process.env.INIT_CWD
@@ -74,12 +75,15 @@ const promote = () => {
   var copied = false
 
   const adtPath = path.join(cwd, 'adt')
+  u.debug(`adtPath: ${adtPath}`)
+
   if (fs.existsSync(adtPath)) {
     copied = true
     u.debug(`${adtPath} already exists... skip copy`)
   }
   else {
     const toCopy = ['./adt', './Makefile']
+    u.debug(`Copying ADT assets ${toCopy}`)
     gc(toCopy, cwd, { overwrite: true })
     copied = true
   }
@@ -87,6 +91,7 @@ const promote = () => {
   // create the dictionary folder if it does not exist
   const dictDir = path.join(cwd, 'dictionary')
   if (!fs.existsSync(dictDir)) {
+    u.debug(`Creating ${dictDir}`)
     fs.mkdirSync(dictDir)
   }
 
@@ -94,6 +99,7 @@ const promote = () => {
   const localDict = path.join(dictDir, 'local.dic')
   const localDictAff = path.join(dictDir, 'local.aff')
   if (!fs.existsSync(localDict)) {
+    u.debug(`Creating ${localDict}`)
     let fh = fs.openSync(localDict, 'a')
     fs.closeSync(fh)
     fh = fs.openSync(localDictAff, 'a')
@@ -103,6 +109,7 @@ const promote = () => {
   // update ADT local dictionary symlinks
   const ldsl = path.join(adtPath, 'dictionary', 'local.dic')
   const ldasl = path.join(adtPath, 'dictionary', 'local.aff')
+    u.debug(`Updating symlinks for ${ldsl} and ${ldasl}`)
   fs.rmSync(ldsl, { force: true })
   fs.rmSync(ldasl, { force: true })
   fs.symlinkSync(localDict, ldsl)
