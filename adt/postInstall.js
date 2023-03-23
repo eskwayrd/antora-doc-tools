@@ -93,7 +93,7 @@ const promote = () => {
   // create the local dictionary if it does not exist
   const localDict = path.join(dictDir, 'local.dic')
   const localDictAff = path.join(dictDir, 'local.aff')
-  if (!fs.existSync(localDict)) {
+  if (!fs.existsSync(localDict)) {
     let fh = fs.openSync(localDict, 'a')
     fh.closeSync()
     fh = fs.openSync(localDictAff, 'a')
