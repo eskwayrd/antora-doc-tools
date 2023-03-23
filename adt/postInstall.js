@@ -95,9 +95,9 @@ const promote = () => {
   const localDictAff = path.join(dictDir, 'local.aff')
   if (!fs.existsSync(localDict)) {
     let fh = fs.openSync(localDict, 'a')
-    fh.closeSync()
+    fs.closeSync(fh)
     fh = fs.openSync(localDictAff, 'a')
-    fh.closeSync()
+    fs.closeSync(fh)
   }
 
   // update ADT local dictionary symlinks
