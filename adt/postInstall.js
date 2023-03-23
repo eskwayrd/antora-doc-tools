@@ -15,13 +15,11 @@ u.DEBUG_PREFIX = 'postInstall'
 // process arguments
 var argv = require('minimist')(process.argv.slice(2))
 if ('v' in argv) u.DEBUG = true
-u.DEBUG = true
 
 const cwd = process.env.INIT_CWD
   ? process.env.INIT_CWD
   : process.cwd()
-console.log(`cwd: ${cwd}`)
-console.log(`process cwd: ${process.cwd()}`)
+u.debug(`cwd: ${cwd}`)
 
 // Install html-test
 const htmltest = () => {
@@ -93,7 +91,7 @@ const promote = () => {
   // create the dictionary folder if it does not exist
   const dictDir = path.join(cwd, 'dictionary')
   if (!fs.existsSync(dictDir)) {
-    console.log(`Creating ${dictDir}`)
+    u.debug(`Creating ${dictDir}`)
     fs.mkdirSync(dictDir)
   }
 
@@ -101,7 +99,7 @@ const promote = () => {
   const localDict = path.join(dictDir, 'local.dic')
   const localDictAff = path.join(dictDir, 'local.aff')
   if (!fs.existsSync(localDict)) {
-    console.log(`Creating ${localDict}`)
+    u.debug(`Creating ${localDict}`)
     let fh = fs.openSync(localDict, 'a')
     fs.closeSync(fh)
     fh = fs.openSync(localDictAff, 'a')
@@ -109,9 +107,9 @@ const promote = () => {
   }
 
   // update ADT local dictionary symlinks
-  const ldsl = path.join(adtPath, 'dictionary', 'local.dic')
-  const ldasl = path.join(adtPath, 'dictionary', 'local.aff')
-  console.log(`Updating symlinks for ${ldsl} and ${ldasl}`)
+  const ldsl = path.join(adtPath, 'dictionaries', 'local.dic')
+  const ldasl = path.join(adtPath, 'dictionaries', 'local.aff')
+  u.debug(`Updating symlinks for ${ldsl} and ${ldasl}`)
   fs.rmSync(ldsl, { force: true })
   fs.rmSync(ldasl, { force: true })
   fs.symlinkSync(localDict, ldsl)

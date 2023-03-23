@@ -20,7 +20,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf bin",
-    "postinstall": "echo $INIT_CWD; pwd; set; echo 'pI'; node adt/postInstall.js",
+    "postinstall": "node adt/postInstall.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
