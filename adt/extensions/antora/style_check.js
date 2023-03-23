@@ -166,7 +166,7 @@ var config  = {
       the:          'place',
       time:         'real',
       to:           'order',
-      ui:           'Fauna',
+      ui:           'JTI',
       unable:       'is',
       up:           'shows',
       well:         'as',
@@ -194,12 +194,12 @@ var config  = {
 
     testWordsRationale: {
       accomplish:    'Replace with "do".',
-      additional:    'Replace with "more".',
+      additional:    'Replace with "more", "another", or "extra".',
       additionally:  'Replace with "also".',
       alter:         'Replace with "change".',
       alternatively: 'Replace with "or".',
-      appear:        'Replace with "look".',
-      appears:       'Replace with "looks".',
+      appear:        'Replace with "look" or "show".',
+      appears:       'Replace with "looks" or "shows".',
       approximately: 'Replace with "about".',
       assist:        'Replace with "help".',
       attempt:       'Replace with "try".',
@@ -360,6 +360,7 @@ var config  = {
       'higher-level': 'Mechanics; omit hyphen.',
 
       actually:      'Omit unnecessary word.',
+      always:        'Omit unnecessary word.',
       any:           'Omit unnecessary word.',
       both:          'Omit unnecessary word.',
       certain:       'Omit unnecessary word.',
@@ -421,21 +422,21 @@ var config  = {
     },
 
     hyphenChecks: {
-      anti:   ' should generally not be hyphenated',
-      auto:   ' should generally not be hyphenated',
-      bi:     ' should generally not be hyphenated',
-      multi:  ' should generally not be hyphenated',
-      co:     ' should generally not be hyphenated',
-      non:    ' should generally not be hyphenated',
-      pre:    ' should generally not be hyphenated',
-      re:     ' should generally not be hyphenated',
-      sub:    ' should generally not be hyphenated',
-      un:     ' should generally not be hyphenated',
+      anti:   'should generally not be hyphenated',
+      auto:   'should generally not be hyphenated',
+      bi:     'should generally not be hyphenated',
+      multi:  'should generally not be hyphenated',
+      co:     'should generally not be hyphenated',
+      non:    'should generally not be hyphenated',
+      pre:    'should generally not be hyphenated',
+      re:     'should generally not be hyphenated',
+      sub:    'should generally not be hyphenated',
+      un:     'should generally not be hyphenated',
     },
 
     pendingChecks: {
-      branding:                              'usage/misusage of words like "Fauna\'s"',
-      'Terminology of parts of Fauna ...':   'incorporate section',
+      branding:                              'usage/misusage of words like "JTI\'s"',
+      'Terminology of parts of JTI ...':   'incorporate section',
       'Notes and cautions':                  'incorporate section',
       'Mechanics of Writing':                'incorporate style-related items',
       'The purpose of this document is':     'omit',
@@ -537,13 +538,16 @@ const check = (contents) => {
 
     for (const candidate of words) {
       if (!candidate || candidate.length === 0) continue
-      var word = candidate.strip('`*_()<>.,:|[]-#=!?/').toLowerCase()
+      var word = candidate.strip('*_()<>.,:|[]-#=!?/').toLowerCase()
       const formatted = chalk.bold(word.toUpperCase())
       if (config.testWords.hasOwnProperty(word)) {
         const ruleType = config.testWords[word]
-        u.debug(`ruleType: ${ruleType}`)
+        u.debug(`ruleType: ${ruleType}, prev: ${prevWord}`)
 
-        if (!ruleType.startsWith('Phrase')) {
+        if (word === 'specific' && prevWord === 'non-agency') {
+          // Acceptable combination
+        }
+        else if (!ruleType.startsWith('Phrase')) {
           result.errors.push(
             `${error(ruleType)} ${formatted}: ${config.testWordsRationale[word]}`
           )
@@ -560,10 +564,12 @@ const check = (contents) => {
       }
       else {
         // other kinds of errors
-        var hyphenated = word.split('-')[0]
-        if (word.match(/-/) && config.hyphenChecks.hasOwnProperty(hyphenated)) {
+        var [hyphenated, following] = word.split('-')
+        if (hyphenated === 'non' && following === 'agency') {
+        }
+        else if (word.match(/-/) && config.hyphenChecks.hasOwnProperty(hyphenated)) {
           result.errors.push(
-            `${error('Hyphenation')} ${formatted}: ${config.hyphenChecks[word]}`
+            `${error('Hyphenation')} ${formatted}: ${config.hyphenChecks[hyphenated]}`
           )
         }
 
@@ -573,17 +579,17 @@ const check = (contents) => {
           )
         }
 
-        if (word.includes("'")) {
+        if (word.match(/(^[^']+')|'s$/)) {
           result.warnings.push(
-            `${warning('Mechanics')} ${formatted}: Do not use possessives, as in Fauna's; Contractions are acceptable.`
+            `${warning('Mechanics')} ${formatted}: Do not use possessives, as in JTI's; Contractions are acceptable.`
           )
         }
 
-        if (word.includes('&')) {
-          result.errors.push(
-            `${warning('Mechanics')} ${formatted}: Do not use "&" unless referring to a literal.`
-          )
-        }
+        // if (word.includes('&')) {
+        //   result.errors.push(
+        //     `${warning('Mechanics')} ${formatted}: Do not use "&" unless referring to a literal.`
+        //   )
+        // }
       }
       prevWord = word
     }
@@ -596,8 +602,8 @@ const check = (contents) => {
   return results
 }
 
-// provide a report for any results found
-const report = () => {
+// determine whether there are reportable problems
+const reportProblems = () => {
   var emit = false
   if (Object.keys(problems).length > 0) {
     Object.keys(problems).map((file) => {
@@ -608,25 +614,27 @@ const report = () => {
       })
     })
   }
+  return emit
+}
 
-  if (emit) {
-    Object.keys(problems).map((file) => {
-      var output = chalk.magenta(file) + `\n`
-      var hasErrors = false
-      problems[file].map((entry) => {
-        output += `${chalk.cyan(entry.line)}: ${entry.text}\n`
-        var spaces = " ".repeat(2 + entry.line.toString().length)
-        if (entry.errors.length > 0) hasErrors = true
-        entry.errors.map((error) => {
-          output += `${spaces}- ${error}\n`
-        })
-        entry.warnings.map((error) => {
-          output += `${spaces}- ${error}\n`
-        })
+// provide a report for any results found
+const report = () => {
+  Object.keys(problems).sort().map((file) => {
+    var output = chalk.magenta(file) + `\n`
+    var hasErrors = false
+    problems[file].map((entry) => {
+      output += `${chalk.cyan(entry.line)}: ${entry.text}\n`
+      var spaces = " ".repeat(2 + entry.line.toString().length)
+      if (entry.errors.length > 0) hasErrors = true
+      entry.errors.map((error) => {
+        output += `${spaces}- ${error}\n`
       })
-      if (hasErrors && output.length) u.log(output.trim())
+      entry.warnings.map((error) => {
+        output += `${spaces}- ${error}\n`
+      })
     })
-  }
+    if (hasErrors && output.length) u.log(output.trim())
+  })
 }
 
 function register ({
@@ -666,7 +674,7 @@ function register ({
       if (results.length) problems[pagePath] = results
     })
 
-    if (Object.keys(problems).length) {
+    if (reportProblems()) {
       u.log(chalk.red('Style problems found:'))
       report()
     }
@@ -676,7 +684,7 @@ function register ({
   })
 
   this.on('documentsConverted', ({ playbook, contentCatalog }) => {
-    if (Object.keys(problems).length) {
+    if (reportProblems()) {
       u.log(chalk.bold('Problems reported, stopping build!'))
       this.stop(1)
     }
