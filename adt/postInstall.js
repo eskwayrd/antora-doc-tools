@@ -20,6 +20,7 @@ u.DEBUG = true
 const cwd = process.env.INIT_CWD
   ? process.env.INIT_CWD
   : process.cwd()
+console.log(`cwd: ${cwd}`)
 
 // Install html-test
 const htmltest = () => {
