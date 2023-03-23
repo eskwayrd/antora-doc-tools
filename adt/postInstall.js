@@ -73,15 +73,40 @@ const vale = () => {
 const promote = () => {
   var copied = false
 
-  if (fs.existsSync(path.join(cwd, 'adt'))) {
+  const adtPath = path.join(cwd, 'adt')
+  if (fs.existsSync(adtPath)) {
     copied = true
-    u.debug(`${cwd}/adt already exists... skip copy`)
+    u.debug(`${adtPath} already exists... skip copy`)
   }
   else {
     const toCopy = ['./adt', './Makefile']
     gc(toCopy, cwd, { overwrite: true })
     copied = true
   }
+
+  // create the dictionary folder if it does not exist
+  const dictDir = path.join(cwd, 'dictionary')
+  if (!fs.existsSync(dictDir)) {
+    fs.mkdirSync(dictDir)
+  }
+
+  // create the local dictionary if it does not exist
+  const localDict = path.join(dictDir, 'local.dic')
+  const localDictAff = path.join(dictDir, 'local.aff')
+  if (!fs.existSync(localDict)) {
+    let fh = fs.openSync(localDict, 'a')
+    fh.closeSync()
+    fh = fs.openSync(localDictAff, 'a')
+    fh.closeSync()
+  }
+
+  // update ADT local dictionary symlinks
+  const ldsl = path.join(adtPath, 'dictionary', 'local.dic')
+  const ldasl = path.join(adtPath, 'dictionary', 'local.aff')
+  fs.rmSync(ldsl, { force: true })
+  fs.rmSync(ldasl, { force: true })
+  fs.symlinkSync(localDict, ldsl)
+  fs.symlinkSync(localDictAff, ldasl)
 
   if (copied) {
     u.log(chalk.green('OK'))

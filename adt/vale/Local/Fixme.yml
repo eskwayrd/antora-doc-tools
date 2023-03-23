@@ -3,3 +3,6 @@ extends: existence
 level: error
 tokens:
   - FIXME
+  - btn:
+  - link:
+  - xref:
