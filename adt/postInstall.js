@@ -48,7 +48,7 @@ const htmltest = () => {
 
 const vale = () => {
   u.log(chalk.bold('Installing vale...'))
-  var command = `vale/bin/install.sh 2.23.0`
+  var command = `vale/bin/install.sh 2.24.0`
   const env = { MYCWD: path.join(cwd, 'adt') }
   var [ output, errors, kill, stat ] = u.run(command, env, 0)
   var installed = false
@@ -72,50 +72,68 @@ const vale = () => {
 
 // copy adt to project root
 const promote = () => {
-  var copied = false
+  var linked = false
 
   const adtPath = path.join(cwd, 'adt')
   u.debug(`adtPath: ${adtPath}`)
 
   if (fs.existsSync(adtPath)) {
-    copied = true
-    u.debug(`${adtPath} already exists... skip copy`)
+    const stats = fs.lstatSync(adtPath)
+    if (stats.isSymbolicLink()) {
+      linked = true
+      u.debug(`${adtPath} already exists... skip link`)
+    }
+    else {
+      // probably a local copy
+      linked = true
+      u.log(`${adtPath} is a folder, which might contain local modifications... skip link`)
+    }
   }
   else {
-    const toCopy = ['./adt', './Makefile']
-    u.debug(`Copying ADT assets ${toCopy}`)
-    gc(toCopy, cwd, { overwrite: true })
-    copied = true
+    u.debug(`Symlinking ADT assets...`)
+    fs.symlinkSync(
+      'node_modules/antora-doc-tools/adt',
+      adtPath
+    )
+    fs.symlinkSync(
+      'node_modules/antora-doc-tools/Makefile',
+      path.join(cwd, 'Makefile')
+    )
+    // const toCopy = ['./adt', './Makefile']
+    // u.debug(`Copying ADT assets ${toCopy}`)
+    // gc(toCopy, cwd, { overwrite: true })
+    linked = true
   }
 
   // create the dictionary folder if it does not exist
-  const dictDir = path.join(cwd, 'dictionary')
+  const dictDir = path.join(cwd, 'dictionaries')
   if (!fs.existsSync(dictDir)) {
     u.debug(`Creating ${dictDir}`)
-    fs.mkdirSync(dictDir)
+    const toCopy = ['./adt/dictionaries']
+    gc(toCopy, cwd)
   }
 
-  // create the local dictionary if it does not exist
-  const localDict = path.join(dictDir, 'local.dic')
-  const localDictAff = path.join(dictDir, 'local.aff')
-  if (!fs.existsSync(localDict)) {
-    u.debug(`Creating ${localDict}`)
-    let fh = fs.openSync(localDict, 'a')
-    fs.closeSync(fh)
-    fh = fs.openSync(localDictAff, 'a')
-    fs.closeSync(fh)
-  }
+  //  // create the local dictionary if it does not exist
+  //  const localDict = path.join(dictDir, 'local.dic')
+  //  const localDictAff = path.join(dictDir, 'local.aff')
+  //  if (!fs.existsSync(localDict)) {
+  //    u.debug(`Creating ${localDict}`)
+  //    let fh = fs.openSync(localDict, 'a')
+  //    fs.closeSync(fh)
+  //    fh = fs.openSync(localDictAff, 'a')
+  //    fs.closeSync(fh)
+  //  }
 
-  // update ADT local dictionary symlinks
-  const ldsl = path.join(adtPath, 'dictionaries', 'local.dic')
-  const ldasl = path.join(adtPath, 'dictionaries', 'local.aff')
-  u.debug(`Updating symlinks for ${ldsl} and ${ldasl}`)
-  fs.rmSync(ldsl, { force: true })
-  fs.rmSync(ldasl, { force: true })
-  fs.symlinkSync(localDict, ldsl)
-  fs.symlinkSync(localDictAff, ldasl)
+  //  // update ADT local dictionary symlinks
+  //  const ldsl = path.join(adtPath, 'dictionaries', 'local.dic')
+  //  const ldasl = path.join(adtPath, 'dictionaries', 'local.aff')
+  //  u.debug(`Updating symlinks for ${ldsl} and ${ldasl}`)
+  //  fs.rmSync(ldsl, { force: true })
+  //  fs.rmSync(ldasl, { force: true })
+  //  fs.symlinkSync(localDict, ldsl)
+  //  fs.symlinkSync(localDictAff, ldasl)
 
-  if (copied) {
+  if (linked) {
     u.log(chalk.green('OK'))
   }
 }
