@@ -434,24 +434,10 @@ var config  = {
       un:     'should generally not be hyphenated',
     },
 
-    pendingChecks: {
-      branding:                              'usage/misusage of words like "JTI\'s"',
-      'Terminology of parts of JTI ...':   'incorporate section',
-      'Notes and cautions':                  'incorporate section',
-      'Mechanics of Writing':                'incorporate style-related items',
-      'The purpose of this document is':     'omit',
-      'keep in mind':                        'condescending',
-      'for this reason':                     'omit',
-      'have the option to':                  'use "can"',
-    },
-    validTypes: {
-      'all':    'ALL',
-      'ALL':    'ALL',
-      'error':  'ERROR',
-      'ERROR':  'ERROR',
-      'check':  'CHECK',
-      'CHECK':  'CHECK',
-    },
+    hyphenExceptions: {
+      'non-collectible':  'financials',
+      'non-agency':       'specific',
+    }
 }
 
 if (!String.prototype.strip) {
@@ -565,12 +551,14 @@ const check = (contents) => {
       else {
         // other kinds of errors
         var [hyphenated, following] = word.split('-')
-        if (hyphenated === 'non' && following === 'agency') {
-        }
-        else if (word.match(/-/) && config.hyphenChecks.hasOwnProperty(hyphenated)) {
-          result.errors.push(
-            `${error('Hyphenation')} ${formatted}: ${config.hyphenChecks[hyphenated]}`
-          )
+        if (word.match(/-/) && config.hyphenChecks.hasOwnProperty(hyphenated)) {
+          if (config.hyphenExceptions.hasOwnProperty(word)) {
+          }
+          else {
+            result.errors.push(
+              `${error('Hyphenation')} ${formatted}: ${config.hyphenChecks[hyphenated]}`
+            )
+          }
         }
 
         if (word.endsWith(';')) {
@@ -668,7 +656,11 @@ function register ({
         file.src.origin.startPath,
         file.src.path
       )
+      const reportPath = path.relative(file.src.origin.worktree, pagePath)
       u.debug(`pagePath: ${chalk.magenta(pagePath)}`)
+      u.debug(`worktree: ${file.src.origin.worktree}`)
+      u.debug(`startPath: ${file.src.origin.startPath}`)
+      u.debug(`reportPath: ${reportPath}`)
 
       const results = check(file.contents.toString())
       if (results.length) problems[pagePath] = results
