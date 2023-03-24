@@ -22,7 +22,7 @@ cyan    := $(shell tput setaf 6)
 white   := $(shell tput setaf 7)
 r       := $(shell tput sgr0)
 heading := $(b)$(cyan)
-notice: := $(b)$(yellow)
+alert   := $(b)$(yellow)
 
 # define paths
 docsDir       := docs
@@ -89,7 +89,7 @@ checks: links vale
 ## @param EXTERNAL=true Check external links too.
 links: html
 ifeq ($(UNAME), Windows)
-	@echo "${notice}Cannot check HTML links, skipping...${r}"
+	@echo "${alert}Cannot check HTML links, skipping...${r}"
 else
 	@echo "${heading}Checking HTML links...${r}"
 ifdef EXTERNAL
