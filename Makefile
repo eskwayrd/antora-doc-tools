@@ -1,5 +1,15 @@
 # Makefile for Antora documentation projects
 
+# platform determination
+ifeq '$(findstring ;,$(PATH))' ';'
+  UNAME := Windows
+else
+  UNAME := $(shell uname 2>/dev/null || echo Unknown)
+  UNAME := $(patsubst CYGWIN%,Cygwin,$(UNAME))
+  UNAME := $(patsubst MSYS%,MSYS,$(UNAME))
+  UNAME := $(patsubst MINGW%,MSYS,$(UNAME))
+endif
+
 # define standard colors
 b       := $(shell tput bold)
 black   := $(shell tput setaf 0)
@@ -12,7 +22,9 @@ cyan    := $(shell tput setaf 6)
 white   := $(shell tput setaf 7)
 r       := $(shell tput sgr0)
 heading := $(b)$(cyan)
+notice: := $(b)$(yellow)
 
+# define paths
 docsDir       := docs
 buildDir      := $(shell adt/get_pbv.js output.dir)
 uiBundleRepo  := $(shell adt/get_pbv.js asciidoc.attributes.ui_bundle_repo)
@@ -76,11 +88,15 @@ checks: links vale
 ## - https://github.com/wjdp/htmltest
 ## @param EXTERNAL=true Check external links too.
 links: html
+ifeq ($(UNAME), Windows)
+	@echo "${notice}Cannot check HTML links, skipping...${r}"
+else
 	@echo "${heading}Checking HTML links...${r}"
 ifdef EXTERNAL
 	adt/bin/htmltest -c adt/htmltest/config-external.yml ${buildDir}
 else
 	adt/bin/htmltest -c adt/htmltest/config.yml ${buildDir}
+endif
 endif
 
 .PHONY: vale
