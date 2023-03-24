@@ -1,6 +1,6 @@
 extends: spelling
 message: "'%s'?"
-dicpath: adt/dictionaries
+dicpath: dictionaries
 dictionaries:
   - en_US-large
   - antora
