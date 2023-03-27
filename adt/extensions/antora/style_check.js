@@ -522,6 +522,12 @@ const check = (contents) => {
     }
     u.debug(words)
 
+    // remove inline monospace runs, since they often reflect UI
+    // elements that have wording that cannot be changed.
+    var zWords = words.join(' ')
+    zWords = zWords.replace(/`[^`]+`/, '') // `
+    words = zWords.split(/\s+/)
+
     for (const candidate of words) {
       if (!candidate || candidate.length === 0) continue
       var word = candidate.strip('*_()<>.,:|[]-#=!?/').toLowerCase()
@@ -663,7 +669,7 @@ function register ({
       u.debug(`reportPath: ${reportPath}`)
 
       const results = check(file.contents.toString())
-      if (results.length) problems[pagePath] = results
+      if (results.length) problems[reportPath] = results
     })
 
     if (reportProblems()) {
