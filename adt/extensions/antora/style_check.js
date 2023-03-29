@@ -84,7 +84,6 @@ var config  = {
       versa:          'Language',
       viz:            'Language',
       vs:             'Language',
-      filename:       'Spelling',
       'it\'s':        'Spelling',
       lifecycle:      'Spelling',
       realtime:       'Spelling',
@@ -352,7 +351,6 @@ var config  = {
 
       is:             'You might be using passive voice. Re-write for active voice.',
 
-      filename:       'Two words "file name."',
       'it\'s':        '"it is."  Use "Its" for possessive."',
       lifecycle:      '"Life cycle" as a noun. "Life-cycle" as an adjective."',
       realtime:       '"Real time" as a noun. "Real-time" as an adjective."',
