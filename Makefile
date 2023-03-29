@@ -55,7 +55,7 @@ preview: docs serve
 .PHONY: force
 force:
 ifdef FORCE
-	@rm -rf ${buildDir}
+	@rm -rf ${buildDir} tmp
 	@rm ${uiBundlePath}
 endif
 
@@ -87,7 +87,7 @@ checks: links vale
 ## Run htmltest to validate HTML links:
 ## - https://github.com/wjdp/htmltest
 ## @param EXTERNAL=true Check external links too.
-links: html
+links: ${buildDir}/index.html
 ifeq ($(UNAME), Windows)
 	@echo "${alert}Cannot check HTML links, skipping...${r}"
 else
@@ -103,7 +103,7 @@ endif
 ## Run vale, a spell+language checker:
 ## - https://github.com/errata-ai/vale
 ## - https://vale.sh/docs/vale-cli/installation/
-vale: html
+vale: ${buildDir}/index.html
 	@echo "${heading}Checking for spelling/language issues in HTML...${r}"
 ifdef (QUICK)
 	@node adt/bin/vale_modified_files.js
