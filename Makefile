@@ -119,13 +119,14 @@ endif
 ## Remove temporary build artifacts
 clean:
 	@echo "${heading}Cleaning build artifacts...${r}"
-	rm -rf build
+	rm -rf ${buildDir}
 
-.PHONY: removeadt
-## Remove ADT and temporary build artifacts
-removeadt:
-	@echo "${heading}Removing ADT and build artifacts...${r}"
-	rm -rf adt build node_modules
+.PHONY: updateadt
+## Update ADT by removing it and reinstalling
+updateadt:
+	@echo "${heading}Updating ADT...${r}"
+	rm -rf adt ${buildDir} Makefile node_modules package-lock.json
+	npm i --install-links
 
 .PHONY: serve
 ## Start a web server to preview the documentation.
