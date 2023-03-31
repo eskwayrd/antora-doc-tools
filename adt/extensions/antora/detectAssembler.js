@@ -39,7 +39,7 @@ function register ({
       u.debug(`Scanning extension:`, ext)
       if ((ext.require || '') === '@antora/pdf-extension') {
         assemblerEnabled = true
-        if ((ext.enabled || true) === false) assemblerEnabled = false
+        if (ext.enabled === false) assemblerEnabled = false
       }
     })
     u.debug(`Assembler enabled? ${assemblerEnabled}`)
