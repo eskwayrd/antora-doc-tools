@@ -632,6 +632,7 @@ const report = () => {
 function register ({
   config: {
     debug = false,
+    remote = true,
     ...unknownOptions
   }
 }) {
@@ -655,9 +656,11 @@ function register ({
     files.map((file, index) => {
       if (file.src.extname !== '.adoc' || file.synthetic) return
 
+      if (!file.src.origin.worktree && !remote) return
+
       const pagePath = path.join(
-        file.src.origin.worktree,
-        file.src.origin.startPath,
+        file.src.origin.worktree || 'REMOTE',
+        file.src.origin.startPath || '',
         file.src.path
       )
       const reportPath = path.relative(file.src.origin.worktree, pagePath)

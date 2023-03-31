@@ -37,7 +37,6 @@ const check = (contents, repeats = validRepeats) => {
   u.debug('Starting line processing...')
   const lines = contents.split(/\r?\n/)
   if (lines.length > 1) lines.pop()
-  u.debug(lines)
 
   lines.map((line, index) => {
     u.debug(`Line ${index + 1}: -=-${line}=-=`)
@@ -93,6 +92,7 @@ const check = (contents, repeats = validRepeats) => {
 
     u.debug(`has ${words.length} words`)
     var previous = ''
+    var mg
     for (var i = 0; i < words.length; i++) {
       const word = words[i]
 
@@ -159,6 +159,21 @@ const skip = (word, repeats) => {
     if (tail === tail.toLowerCase()) return true
   }
 
+  var mg
+  if (mg = word.match(/^\|\s*(.*)$/)) {
+    u.debug('Possibly in table cell')
+    // skip empty table cells
+    if (mg[1].length === 0) {
+      u.debug('Nothing after cell marker')
+      return true
+    }
+    // skip cells with only one word
+    if (!mg[1].match(/\s/)) {
+      u.debug('Only one word after cell marker')
+      return true
+    }
+  }
+
   return false
 }
 
@@ -190,6 +205,7 @@ function register ({
   config: {
     repeats = validRepeats,
     debug = false,
+    remote = true,
     ...unknownOptions
   }
 }) {
@@ -211,9 +227,14 @@ function register ({
     files.map((file, index) => {
       if (file.src.extname !== '.adoc' || file.synthetic) return
 
+      if (!file.src.origin.worktree && !remote) return
+
+      u.debug(`worktree: ${file.src.origin.worktree}`)
+      u.debug(`startPath: ${file.src.origin.startPath}`)
+      u.debug(`path: ${file.src.path}`)
       const pagePath = path.join(
-        file.src.origin.worktree,
-        file.src.origin.startPath,
+        file.src.origin.worktree || 'REMOTE',
+        file.src.origin.startPath || '',
         file.src.path
       )
       u.debug(`pagePath: ${chalk.magenta(pagePath)}`)
