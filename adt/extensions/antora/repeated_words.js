@@ -233,11 +233,13 @@ function register ({
       u.debug(`startPath: ${file.src.origin.startPath}`)
       u.debug(`path: ${file.src.path}`)
       const pagePath = path.join(
-        file.src.origin.worktree || 'REMOTE',
+        file.src.origin.worktree || process.env.INIT_CWD || process.cwd(),
         file.src.origin.startPath || '',
         file.src.path
       )
       u.debug(`pagePath: ${chalk.magenta(pagePath)}`)
+      const reportPath = path.relative(file.src.origin.worktree, pagePath)
+      u.debug(`reportPath: ${chalk.magenta(reportPath)}`)
 
       const results = check(file.contents.toString(), repeats)
       if (results.length) problems[pagePath] = results

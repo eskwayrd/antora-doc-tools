@@ -659,7 +659,7 @@ function register ({
       if (!file.src.origin.worktree && !remote) return
 
       const pagePath = path.join(
-        file.src.origin.worktree || 'REMOTE',
+        file.src.origin.worktree || process.env.INIT_CWD || process.cwd(),
         file.src.origin.startPath || '',
         file.src.path
       )
