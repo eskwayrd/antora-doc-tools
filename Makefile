@@ -55,8 +55,7 @@ preview: docs serve
 .PHONY: force
 force:
 ifdef FORCE
-	@rm -rf ${buildDir} tmp
-	@rm ${uiBundlePath}
+	@rm -rf ${buildDir} tmp ${uiBundlePath}
 endif
 
 .PHONY: getui
