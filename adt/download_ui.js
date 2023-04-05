@@ -35,9 +35,20 @@ if (!repo && !repo.length) {
 const uiBundleUrl = playbook.ui?.bundle?.url || ''
 if (uiBundleUrl && fs.existsSync(uiBundleUrl)) {
   const stat = fs.statSync(uiBundleUrl)
-  const threshold = Date.now() - (3600 * 1000) // 1 hour
-  if (stat.mtime.valueOf() > threshold) {
-    u.log('Bundle downloaded less than an hour ago, skipping download.')
+
+  const command = `gh release view latest --repo ${repo} --json 'publishedAt'`
+  var [ output, errors, kill, stats ] = u.run(command, {}, 0)
+  if (errors && errors.length) {
+    u.log(`Error(s):`, errors)
+    process.exit(1)
+  }
+  const result = JSON.parse(output)
+  const pubAt = new Date(result.publishedAt)
+
+  // const threshold = Date.now() - (3600 * 1000) // 1 hour
+  // if (stat.mtime.valueOf() > threshold) {
+  if (pubAt.getTime() < stat.mtime.valueOf()) {
+    u.log('Bundle already up-to-date, skipping download.')
     process.exit(0)
   }
 }
