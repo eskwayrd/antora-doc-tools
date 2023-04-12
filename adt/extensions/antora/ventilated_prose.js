@@ -96,6 +96,12 @@ const check = (contents) => {
       return
     }
 
+    // skip attribute definitions
+    if (line.match(/^:[^:]+:/)) {
+      u.debug(`Is attribute definition, skipping...`)
+      return
+    }
+
     // skip list continuations
     if (line.match(/^\+\s*$/)) {
       u.debug('Is list continuation, skipping...')
