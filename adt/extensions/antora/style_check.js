@@ -571,7 +571,7 @@ const check = (contents) => {
           )
         }
 
-        if (word.match(/(^[^']+')|'s$/)) {
+        if (word.match(/(^[^']+'(?!t))|'s$/)) {
           result.warnings.push(
             `${warning('Mechanics')} ${formatted}: Do not use possessives, as in JTI's; Contractions are acceptable.`
           )
