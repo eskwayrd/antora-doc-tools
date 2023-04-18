@@ -425,7 +425,7 @@ var config  = {
       bi:     'should generally not be hyphenated',
       multi:  'should generally not be hyphenated',
       co:     'should generally not be hyphenated',
-      non:    'should generally not be hyphenated',
+      // non:    'should generally not be hyphenated',
       pre:    'should generally not be hyphenated',
       re:     'should generally not be hyphenated',
       sub:    'should generally not be hyphenated',
@@ -611,6 +611,8 @@ const reportProblems = () => {
 
 // provide a report for any results found
 const report = () => {
+  var errors = 0
+  var warnings = 0
   Object.keys(problems).sort().map((file) => {
     var output = chalk.magenta(file) + `\n`
     var hasErrors = false
@@ -620,13 +622,29 @@ const report = () => {
       if (entry.errors.length > 0) hasErrors = true
       entry.errors.map((error) => {
         output += `${spaces}- ${error}\n`
+        errors++
       })
       entry.warnings.map((error) => {
         output += `${spaces}- ${error}\n`
+        warnings++
       })
     })
     if (hasErrors && output.length) u.log(output.trim())
   })
+  if (errors || warnings) {
+    var message = ''
+    if (errors) {
+      message += chalk.bold(errors) + ' error' + (errors !== 1 ? 's' : '')
+    }
+    if (errors && warnings) {
+      message += ' and '
+    }
+    if (warnings) {
+      message += chalk.bold(warnings) + ' warning' + (warnings !== 1 ? 's' : '')
+    }
+
+    console.log(`\n${message} ${chalk.red(' found during style checks')}`)
+  }
 }
 
 function register ({

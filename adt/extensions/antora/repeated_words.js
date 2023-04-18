@@ -178,8 +178,8 @@ const skip = (word, repeats) => {
 }
 
 const report = () => {
-
-  Object.keys(problems).sort().map((file) => {
+  const issues = Object.keys(problems)
+  issues.sort().map((file) => {
     const issues = problems[file]
     u.log(chalk.magenta(file))
     issues.map((issue) => {
@@ -197,8 +197,11 @@ const report = () => {
       }
       u.log(`${issue.line}: ${line}`)
     })
-
   })
+
+  if (issues.length) {
+    console.log(`\n${chalk.bold(issues.length)} ${chalk.red('repeated word issue' + (issues.length !== 1 ? 's' : '') + 's found.')}`)
+  }
 }
 
 function register ({

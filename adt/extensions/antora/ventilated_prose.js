@@ -214,8 +214,9 @@ const report = () => {
       }
       u.log(`${issue.line}: ${line}`)
     })
-
   })
+
+  u.log(chalk.bold(`${errors} ventilated prose problem${s(errors)} in ${topics} file${s(topics)} reported, stopping build!`))
 }
 
 function register ({
@@ -279,7 +280,7 @@ function register ({
 
   this.on('documentsConverted', ({ playbook, contentCatalog }) => {
     if (errors) {
-      u.log(chalk.bold(`${errors} ventilated prose problem${s(errors)} in ${topics} file${s(topics)} reported, stopping build!`))
+      u.log(chalk.bold('Problems reported, stopping build!'))
       this.stop(1)
     }
   })
