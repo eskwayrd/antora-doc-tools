@@ -143,7 +143,12 @@ var config  = {
     },
 
     testWordExceptions: {
-      'specific': 'non-agency',
+      'specific': {
+        after: ['non-agency'],
+      },
+      primary: {
+        before: ['nns']
+      }
     }
 
     phraseWords: {
@@ -530,17 +535,29 @@ const check = (contents) => {
     zWords = zWords.replace(/`[^`]+`/, '') // `
     words = zWords.split(/\s+/)
 
-    for (const candidate of words) {
+    var w
+    var nextWord = ''
+
+    for (w = 0; w < words.length; w++) {
+      const candidate = words[w]
       if (!candidate || candidate.length === 0) continue
       var word = candidate.strip('*_()<>.,:|[]-#=!?/').toLowerCase()
+      if (w < words.length) {
+        nextWord = words[w + 1]
+      }
       const formatted = chalk.bold(word.toUpperCase())
       if (config.testWords.hasOwnProperty(word)) {
         const ruleType = config.testWords[word]
         u.debug(`ruleType: ${ruleType}, prev: ${prevWord}`)
 
         var acceptable = false
-        if (testWordExceptions.hasOwnProperty(word)) {
-          if (prevWord && prevWord === testWordExceptions[word]) {
+        if (config.testWordExceptions.hasOwnProperty(word)) {
+          const exception = config.testWordExceptions[word]
+          const before = exception?.before ?? []
+          const after = expection?.after ?? []
+          if (prevWord && after.includes(prevWord) ||
+            nextWord && before.includes(nextWord)
+          ) {
             acceptable = true
           }
         }
