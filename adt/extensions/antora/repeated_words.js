@@ -178,7 +178,7 @@ const skip = (word, repeats) => {
 }
 
 const report = () => {
-  const topics = 0
+  var topics = 0
   const issues = Object.keys(problems)
   issues.sort().map((file) => {
     topics++
@@ -251,7 +251,7 @@ function register ({
     })
 
     if (Object.keys(problems).length) {
-      u.log(chalk.red('Repeated words found:'))
+      u.log(chalk.red('Repeated word issues found:'))
       report()
     }
     else {
