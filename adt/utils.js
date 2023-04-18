@@ -117,6 +117,11 @@ const exit = (state) => {
 }
 
 // --------------------------------------------------------------------
+// Express plural/singular
+const s = (num = 0) => num === 1 ? '' : 's'
+
+
+// --------------------------------------------------------------------
 // determines the minimum indent in source text
 const minIndent = (source = '') => {
   const match = source.match(/^[ \t]*(?=\S)/gm);

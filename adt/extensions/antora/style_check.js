@@ -613,7 +613,9 @@ const reportProblems = () => {
 const report = () => {
   var errors = 0
   var warnings = 0
+  var files = 0
   Object.keys(problems).sort().map((file) => {
+    files++
     var output = chalk.magenta(file) + `\n`
     var hasErrors = false
     problems[file].map((entry) => {
@@ -634,16 +636,16 @@ const report = () => {
   if (errors || warnings) {
     var message = ''
     if (errors) {
-      message += chalk.bold(errors) + ' error' + (errors !== 1 ? 's' : '')
+      message += chalk.bold(errors) + ' error' + u.s(errors)
     }
     if (errors && warnings) {
       message += ' and '
     }
     if (warnings) {
-      message += chalk.bold(warnings) + ' warning' + (warnings !== 1 ? 's' : '')
+      message += chalk.bold(warnings) + ' warning' + u.s(warnings)
     }
 
-    console.log(`\n${message} ${chalk.red(' found during style checks')}`)
+    console.log(`\n${message} in ${files} file${u.s(files)} found during style checks!`)
   }
 }
 
@@ -660,7 +662,7 @@ function register ({
   if (Object.keys(unknownOptions).length) {
     const keys = Object.keys(unknownOptions)
     throw new Error(
-      `Unrecognized option${keys.length !== 1 ? 's' : ''}` +
+      `Unrecognized option${u.s(keys.length)}` +
       ` specified for ${extensionName}: ${keys.join(', ')}`
     )
   }

@@ -18,8 +18,6 @@ const problems = {}
 let topics = 0
 let errors = 0
 
-const s = (num = 0) => num === 1 ? '' : 's'
-
 const check = (contents) => {
   if (!contents || !contents.length) return
 
@@ -216,7 +214,7 @@ const report = () => {
     })
   })
 
-  u.log(chalk.bold(`${errors} ventilated prose problem${s(errors)} in ${topics} file${s(topics)} reported, stopping build!`))
+  u.log(chalk.bold(`${errors} ventilated prose problem${u.s(errors)} in ${topics} file${u.s(topics)} reported, stopping build!`))
 }
 
 function register ({
@@ -231,7 +229,7 @@ function register ({
   if (Object.keys(unknownOptions).length) {
     const keys = Object.keys(unknownOptions)
     throw new Error(
-      `Unrecognized option${keys.length !== 1 ? 's' : ''}` +
+      `Unrecognized option${u.s(keys.length)}` +
       ` specified for ${extensionName}: ${keys.join(', ')}`
     )
   }

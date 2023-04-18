@@ -178,8 +178,10 @@ const skip = (word, repeats) => {
 }
 
 const report = () => {
+  const files = 0
   const issues = Object.keys(problems)
   issues.sort().map((file) => {
+    files++
     const issues = problems[file]
     u.log(chalk.magenta(file))
     issues.map((issue) => {
@@ -200,7 +202,7 @@ const report = () => {
   })
 
   if (issues.length) {
-    console.log(`\n${chalk.bold(issues.length)} ${chalk.red('repeated word issue' + (issues.length !== 1 ? 's' : '') + 's found.')}`)
+    console.log(`\n${chalk.bold(issues.length)} repeated word issue${u.s(issues)} in ${files} file${u.s(files)} found!`)
   }
 }
 
@@ -217,7 +219,7 @@ function register ({
   if (Object.keys(unknownOptions).length) {
     const keys = Object.keys(unknownOptions)
     throw new Error(
-      `Unrecognized option${keys.length !== 1 ? 's' : ''}` +
+      `Unrecognized option${u.s(keys.length)}` +
       ` specified for ${extensionName}: ${keys.join(', ')}`
     )
   }
