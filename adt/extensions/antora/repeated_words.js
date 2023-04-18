@@ -178,10 +178,10 @@ const skip = (word, repeats) => {
 }
 
 const report = () => {
-  const files = 0
+  const topics = 0
   const issues = Object.keys(problems)
   issues.sort().map((file) => {
-    files++
+    topics++
     const issues = problems[file]
     u.log(chalk.magenta(file))
     issues.map((issue) => {
@@ -202,7 +202,7 @@ const report = () => {
   })
 
   if (issues.length) {
-    console.log(`\n${chalk.bold(issues.length)} repeated word issue${u.s(issues)} in ${files} file${u.s(files)} found!`)
+    console.log(`\n${chalk.bold(issues.length)} repeated word issue${u.s(issues)} in ${topics} file${u.s(topics)} found!`)
   }
 }
 

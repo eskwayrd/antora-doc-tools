@@ -613,9 +613,9 @@ const reportProblems = () => {
 const report = () => {
   var errors = 0
   var warnings = 0
-  var files = 0
+  var topics = 0
   Object.keys(problems).sort().map((file) => {
-    files++
+    topics++
     var output = chalk.magenta(file) + `\n`
     var hasErrors = false
     problems[file].map((entry) => {
@@ -645,7 +645,7 @@ const report = () => {
       message += chalk.bold(warnings) + ' warning' + u.s(warnings)
     }
 
-    console.log(`\n${message} in ${files} file${u.s(files)} found during style checks!`)
+    console.log(`\n${message} in ${topics} file${u.s(topics)} found during style checks!`)
   }
 }
 
