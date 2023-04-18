@@ -60,7 +60,7 @@ var config  = {
       primary:        'Simplify',
       principle:      'Simplify',
       provide:        'Simplify',
-      receive:        'Simplify',
+      // receive:        'Simplify',
       remainder:      'Simplify',
       robust:         'Simplify',
       upon:           'Simplify',
