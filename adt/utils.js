@@ -441,6 +441,7 @@ module.exports = {
   modifiedFiles,
   myTypeOf,
   run,
+  s,
   startTimer,
   usage,
 }
