@@ -142,6 +142,10 @@ var config  = {
       unable:         'Phrase',
     },
 
+    testWordExceptions: {
+      'specific': 'non-agency',
+    }
+
     phraseWords: {
       click:        'right',
       course:       'of',
@@ -534,17 +538,21 @@ const check = (contents) => {
         const ruleType = config.testWords[word]
         u.debug(`ruleType: ${ruleType}, prev: ${prevWord}`)
 
-        if (word === 'specific' && prevWord === 'non-agency') {
-          // Acceptable combination
+        var acceptable = false
+        if (testWordExceptions.hasOwnProperty(word)) {
+          if (prevWord && prevWord === testWordExceptions[word]) {
+            acceptable = true
+          }
         }
-        else if (!ruleType.startsWith('Phrase')) {
+
+        if (!ruleType.startsWith('Phrase')) {
           result.errors.push(
             `${error(ruleType)} ${formatted}: ${config.testWordsRationale[word]}`
           )
         }
         else {
           if (config.phraseWords.hasOwnProperty(word)) {
-            if (prevWord === word) {
+            if (!acceptable && prevWord === config.phraseWords[word]) {
               result.errors.push(
                 `${error(ruleType)} ${prevWord}: ${formatted} ${config.testWordsRationale[word]}`
               )
