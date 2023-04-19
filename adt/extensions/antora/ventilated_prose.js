@@ -121,7 +121,7 @@ const check = (contents) => {
     }
 
     // skip table cells
-    if (line.match(/^[|!](\s+|$)/)) {
+    if (line.match(/^(\d+\+)?[|!](\s+|$)/)) {
       u.debug('Is table cell, skipping...')
       return
     }
