@@ -147,7 +147,7 @@ var config  = {
         after: ['non-agency'],
       },
       primary: {
-        before: ['nns', 'his']
+        before: ['nns', 'his', 'server', 'servers', 'host', 'ms-his']
       },
       appear: {
       }
