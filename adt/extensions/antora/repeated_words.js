@@ -47,7 +47,7 @@ const check = (contents, repeats = validRepeats) => {
     u.debug(`not a blank line`)
 
     // avoid checking for repeats inside source blocks
-    if (!inSource && line.match(/\[(source|shell)[^\]]*/)) {
+    if (!inSource && line.match(/\[(source|shell|verbatim)[^\]]*/)) {
       inSource = true
       return
     }

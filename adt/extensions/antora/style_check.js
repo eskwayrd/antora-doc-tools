@@ -147,9 +147,11 @@ var config  = {
         after: ['non-agency'],
       },
       primary: {
-        before: ['nns']
+        before: ['nns', 'his']
+      },
+      appear: {
       }
-    }
+    },
 
     phraseWords: {
       click:        'right',
@@ -179,6 +181,10 @@ var config  = {
       up:           'shows',
       well:         'as',
       you:          'lets',
+    },
+
+    possessiveExceptions: {
+      "driver's": true,
     },
 
     acronyms: {
@@ -454,6 +460,9 @@ if (!String.prototype.strip) {
   }
 }
 
+const normalize = (word = '') => {
+  return word.strip('*_()<>.,:|[]-#=!?/').toLowerCase()
+}
 
 // scan the lines in a file, but we just return the output
 const check = (contents) => {
@@ -476,7 +485,7 @@ const check = (contents) => {
     u.debug(`${counter}: ${line}`)
 
     // identify source blocks
-    if (!inSource && (line.match(/\[(source|shell)[^\]]*\]/))) {
+    if (!inSource && (line.match(/\[(source|shell|verbatim)[^\]]*\]/))) {
       u.debug(`in source`)
       inSource = true
       return
@@ -541,9 +550,9 @@ const check = (contents) => {
     for (w = 0; w < words.length; w++) {
       const candidate = words[w]
       if (!candidate || candidate.length === 0) continue
-      var word = candidate.strip('*_()<>.,:|[]-#=!?/').toLowerCase()
+      var word = normalize(candidate)
       if (w < words.length) {
-        nextWord = words[w + 1]
+        nextWord = normalize(words[w + 1])
       }
       const formatted = chalk.bold(word.toUpperCase())
       if (config.testWords.hasOwnProperty(word)) {
@@ -552,17 +561,31 @@ const check = (contents) => {
 
         var acceptable = false
         if (config.testWordExceptions.hasOwnProperty(word)) {
+          u.debug(`Have exception for ${word}`)
           const exception = config.testWordExceptions[word]
           const before = exception?.before ?? []
-          const after = expection?.after ?? []
+          u.debug(`${word} okay before:`, before)
+          const after = exception?.after ?? []
+          u.debug(`${word} okay after:`, after)
+          u.debug(`prevWord=${prevWord}, nextWord=${nextWord}`)
           if (prevWord && after.includes(prevWord) ||
             nextWord && before.includes(nextWord)
           ) {
+            u.debug(`Word deemed acceptable`)
             acceptable = true
+          }
+
+          if (word === 'appear') {
+            u.debug('word=appear, zWords:', zWords)
+            if (zWords.match(/failures? to appear/i)) {
+              u.debug('Line contains "failure to appear", acceptable.')
+              acceptable = true
+            }
           }
         }
 
-        if (!ruleType.startsWith('Phrase')) {
+        if (!acceptable && !ruleType.startsWith('Phrase')) {
+          u.debug('Non-phrase error')
           result.errors.push(
             `${error(ruleType)} ${formatted}: ${config.testWordsRationale[word]}`
           )
@@ -596,7 +619,10 @@ const check = (contents) => {
           )
         }
 
-        if (word.match(/(^[^']+'(?!t))|'s$/)) {
+        if (
+          word.match(/(^[^`']+'(?!t))|'s$/) && //`
+          !(word in config.possessiveExceptions)
+        ) {
           result.warnings.push(
             `${warning('Mechanics')} ${formatted}: Do not use possessives, as in JTI's; Contractions are acceptable.`
           )

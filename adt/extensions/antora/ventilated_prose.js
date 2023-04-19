@@ -32,14 +32,14 @@ const check = (contents) => {
 
   lines.map((line, index) => {
     u.debug(`Line ${index + 1}: -=-${line}=-=`)
-    u.debug(u.myTypeOf(line))
     // skip blank lines
     if (!line) return
 
     u.debug(`not a blank line`)
 
     // avoid checking inside source blocks
-    if (!inSource && line.match(/\[(source|shell)[^\]]*/)) {
+    if (!inSource && line.match(/\[(source|shell|verbatim)[^\]]*/)) {
+      u.debug('start "source" block')
       inSource = true
       return
     }
@@ -47,14 +47,14 @@ const check = (contents) => {
     if (inSource) {
       if (mg = line.match(/^(-|=)+$/)) {
         if (delimiter.length > 0 && delimiter == mg[1]) {
-          // end of source block reached
+          u.debug('end of source block')
           delimiter = ''
           inSource = false
           return
         }
 
         if (delimiter == '') {
-          // initial delimiter found
+          u.debug('initial delimiter found')
           delimiter = mg[1]
           return
         }
@@ -62,16 +62,18 @@ const check = (contents) => {
 
       // handle non-delimited blocks
       if (delimiter === '' && line.match(/^\s*$/)) {
+        u.debug('non-delimited block')
         inSource = false
         return
       }
 
       // just skip source block content
+      u.debug('skipping source block content')
       return
     }
 
     // skip headings
-    if (line.match(/^=+ [A-Z{x].+$/)) {
+    if (line.match(/^=+ ([0-9{]|[A-Z]|[a-z][A-Z]).+$/)) {
       u.debug('Is heading, skipping...')
       return
     }
@@ -112,6 +114,12 @@ const check = (contents) => {
       return
     }
 
+    // skip other block delimiters
+    if (line.match(/^====+\s*$/)) {
+      u.debug('Is block delimiter, skipping...')
+      return
+    }
+
     // skip table cells
     if (line.match(/^[|!](\s+|$)/)) {
       u.debug('Is table cell, skipping...')
@@ -124,6 +132,11 @@ const check = (contents) => {
       return
     }
 
+    // skip list items containing only {empty}
+    if (line.match(/^[.*-]+\s*\{empty\}$/)) {
+      u.debug('Is list item with {empty}, skipping...')
+      return
+    }
 
     const origLine = line
 
@@ -158,7 +171,7 @@ const check = (contents) => {
     let lEnd = false
     let lMid = false
 
-    if (!line.match(/^\s*[A-Z0-9\\*_`{]/)) { //`
+    if (!line.match(/\s*([0-9{\\*_`]|[A-Z]|[a-z][A-Z]).+$/)) { //`
       u.debug(`Sentence start error!`)
       lStart = true
     }
@@ -169,7 +182,7 @@ const check = (contents) => {
     }
 
     // Note that we have to avoid ellipsis mid-line, for the time being
-    if (line.match(/(?!..)[.?!] ./)) {
+    if (line.match(/(?!\.\.)[.?!] ./)) {
       u.debug(`Mid-sentence punctuation error!`)
       lMid = true
     }
