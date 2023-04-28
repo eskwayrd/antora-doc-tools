@@ -1,8 +1,0 @@
-extends: spelling
-message: "'%s'?"
-dicpath: dictionaries
-dictionaries:
-  - en_US-large
-  - antora
-  - local
-level: error

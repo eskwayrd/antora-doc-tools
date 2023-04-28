@@ -4,11 +4,12 @@
 
 'use strict'
 
-const chalk = require('chalk')
-const fs    = require('fs')
-const gc    = require('gently-copy')
-const path  = require('path')
-const u     = require('./utils')
+const chalk   = require('chalk')
+const fs      = require('fs')
+const gc      = require('gently-copy')
+const path    = require('path')
+const u       = require('./utils')
+const hasbin  = require('hasbin')
 
 u.DEBUG_PREFIX = 'postInstall'
 
@@ -21,39 +22,24 @@ const cwd = process.env.INIT_CWD
   : process.cwd()
 u.debug(`cwd: ${cwd}`)
 
-// Install html-test
-const htmltest = () => {
-  u.log(chalk.bold('Installing htmltest...'))
-  var command = `htmltest/bin/install.sh 0.17.0`
-  const env = { MYCWD: path.join(cwd, 'adt') }
-  var [ output, errors, kill, stat ] = u.run(command, env, 0)
-  var installed = false
-  if (errors && errors.length) {
-    if (errors.match(/htmltest info installing htmltest/)) {
-      installed = true
-    }
-    else {
-      u.log(chalk.red('Failed to install'))
-      u.debug('output:')
-      u.debug('-=-=-=-', output, '=-=-=-=')
-      u.debug('errors:')
-      u.debug('-=-=-=-', errors, '=-=-=-=')
-    }
+const hasDocker = hasbin.sync('docker')
+const htmltestImage = 'wjdp/htmltest'
+const valeImage = 'jdkato/vale'
+
+// Install dependencies provided by Docker images
+const docker = () => {
+  if (!hasDocker) {
+    u.log(chalk.yellow('No Docker found, skipping htmltest installation.'))
+    return
   }
 
-  if (installed) {
-    u.log(chalk.green('OK'))
-  }
-}
+  u.log(chalk.bold('Installing dependencies from Docker images...'))
 
-const vale = () => {
-  u.log(chalk.bold('Installing vale...'))
-  var command = `vale/bin/install.sh 2.24.0`
-  const env = { MYCWD: path.join(cwd, 'adt') }
-  var [ output, errors, kill, stat ] = u.run(command, env, 0)
+  var command = `make docker`
+  var [ output, errors, kill, stat ] = u.run(command, {}, 0)
   var installed = false
   if (errors && errors.length) {
-    if (errors.match(/vale info installing vale/)) {
+    if (errors.match('Yay!')) {
       installed = true
     }
     else {
@@ -106,11 +92,63 @@ const promote = () => {
   }
 
   // create the dictionary folder if it does not exist
+  u.debug(`Checking for existence of the dictionaries folder...`)
   const dictDir = path.join(cwd, 'dictionaries')
   if (!fs.existsSync(dictDir)) {
-    u.debug(`Creating ${dictDir}`)
-    const toCopy = ['./adt/dictionaries']
-    gc(toCopy, cwd)
+    // Prior to vale 2.24.5, symlinks in Vale's dictPath could not be
+    // symlinks, so copying the dictionary folder was required.
+    // u.debug(`Creating ${dictDir}`)
+    // const toCopy = ['./adt/dictionaries']
+    // gc(toCopy, cwd)
+
+    fs.mkdirSync(dictDir)
+  }
+
+  u.debug(`Handling the large English dictionary...`)
+  const enUS = 'en_US-large'
+  const dictEnPath = path.join(dictDir, `${enUS}.dic`)
+  if (!fs.existsSync(dictEnPath)) {
+    u.debug('Symlinking the large English dictionary files...')
+    fs.symlinkSync(
+      `node_modules/antora-doc-tools/dictionaries/${enUS}.dic`,
+      dictEnPath
+    )
+    fs.symlinkSync(
+      `node_modules/antora-doc-tools/dictionaries/${enUS}.aff`,
+      path.join(dictDir, `${enUS}.aff`)
+    )
+  }
+
+  u.debug(`Handling the Antora dictionary...`)
+  const antDic = 'antora'
+  const dictAntPath = path.join(dictDir, `${antDic}.dic`)
+  if (!fs.existsSync(dictAntPath)) {
+    u.debug('Symlinking the Antora dictionary files...')
+    fs.symlinkSync(
+      `node_modules/antora-doc-tools/dictionaries/${antDic}.dic`,
+      dictAntPath
+    )
+    fs.symlinkSync(
+      `node_modules/antora-doc-tools/dictionaries/${antDic}.aff`,
+      path.join(dictDir, `${antDic}.aff`)
+    )
+  }
+
+  u.debug(`Handling the local dictionary...`)
+  const locDic = 'local'
+  const dictLocPath = path.join(dictDir, `${locDic}.dic`)
+  if (!fs.existsSync(dictEnPath)) {
+    u.debug('Symlinking the local dictionary files...')
+    fs.symlinkSync(
+      `node_modules/locora-doc-tools/dictionaries/${locDic}.dic`,
+      dictLocPath
+    )
+    // Editing affix files is pretty rare, so just re-use the Antora
+    // affixes for the local dictionary.
+    fs.symlinkSync(
+      `node_modules/locora-doc-tools/dictionaries/${antDic}.aff`,
+      path.join(dictDir, `${locDic}.aff`)
+    )
   }
 
   //  // create the local dictionary if it does not exist
@@ -124,14 +162,28 @@ const promote = () => {
   //    fs.closeSync(fh)
   //  }
 
-  //  // update ADT local dictionary symlinks
-  //  const ldsl = path.join(adtPath, 'dictionaries', 'local.dic')
-  //  const ldasl = path.join(adtPath, 'dictionaries', 'local.aff')
-  //  u.debug(`Updating symlinks for ${ldsl} and ${ldasl}`)
-  //  fs.rmSync(ldsl, { force: true })
-  //  fs.rmSync(ldasl, { force: true })
-  //  fs.symlinkSync(localDict, ldsl)
-  //  fs.symlinkSync(localDictAff, ldasl)
+  const valeDir = path.join(cwd, 'Vale')
+  if (!fs.existsSync(valeDir)) {
+    fs.mkdirSync(valeDir)
+  }
+
+  const valeConfig = path.join(valeDir, '.vale.ini')
+  if (!fs.existSync(valeConfig)) {
+    u.debug(`Copying Vale configuration`)
+    const toCopy = ['./adt/vale/vale.ini']
+    gc(toCopy, valeDir)
+    fs.renameSync(
+      path.join(valeDir, 'vale.ini'),
+      path.join(valeDir, '.vale.ini')
+    )
+  }
+
+  const htmltestConfig = path.join(cwd, 'htmltest.yml')
+  if (!fs.existSync(htmltestConfig)) {
+    u.debug(`Copying htmltest configuration`)
+    const toCopy = ['./adt/htmltest.yml']
+    gc(toCopy, cwd)
+  }
 
   if (linked) {
     u.log(chalk.green('OK'))
@@ -139,5 +191,4 @@ const promote = () => {
 }
 
 promote()
-vale()
-htmltest()
+docker()

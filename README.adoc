@@ -1,0 +1,71 @@
+// vim: tw=0 ai et ts=2 sw=2
+= Antora doc tools
+
+This repo is primarily a Node.js-based set of tools to help build Antora-based documentation.
+
+https://antora.org/[Antora^] does most of the work, but the tools also include:
+
+- A set of Antora extensions that implement content checks for:
+
+** Repeated words.
+** Asciidoc formatted as "ventilated prose".
+** Image existence and size declarations.
+** A set of opinionated language style checks for technical documentation.
+
+Each of the extensions can be independently enabled/disabled, and each features a "debug" mode.
+
+- Spelling and language checks using https://github.com/errata-ai/vale[Vale^].
+
+- Link ("local" and external) using https://github.com/wjdp/htmltest[`htmltest`^].
+
+- Search using https://github.com/CloudCannon/pagefind[Pagefind^].
+
+- PDF generation using https://docs.asciidoctor.org/pdf-converter/latest/[Asciidoctor PDF^].
+
+
+== Requirements
+
+- Node.js 16.x or newer.
+- Ruby 3.x or newer (for PDF generation).
+- Docker
+- `make`
+
+Documentation builds _should_ work fine on macOS, Linux, and Windows.
+Only macOS builds have been tested to date.
+
+
+== Preparation
+
+- Ensure that the requirements have been met.
+
+- Create a Git repository with a `docs` folder at the root containing Antora-compatible documentation structure.
+
+- If you do not have a `package.json` file, in the repo root run:
++
+[source, terminal]
+----
+npm init -y
+----
+
+
+== Installation
+
+. In your documentation Git repo root, run:
++
+[source, terminal]
+----
+npm i https://github.com/eskwayrd/antora-doc-tools
+----
+
+. If your repo does not already have a `.gitignore` file, ADT installs one for you that is suitable for an Antora documentation project.
+
+. If your repo does not already have a `Vale` folder, ADT creates one and creates the necessary `styles` folder and `.vale.ini` file inside.
++
+Once `.vale.ini` exists, you should customize it to include Vale style packages that your project requires.
+You can install styles from the https://vale.sh/hub/[Vale Package Hub^].
++
+Once customize, commit `.vale.ini`, but not the style folders.
+
+. If your repo does not already have an `htmltest.yml` config file, ADT creates one for you.
+You likely do not need to customize the configuration, but you should commit the file.
+

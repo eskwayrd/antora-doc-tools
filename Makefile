@@ -10,6 +10,13 @@ else
   UNAME := $(patsubst MINGW%,MSYS,$(UNAME))
 endif
 
+# Docker available?
+CHECK_CMD = $(if $(shell command -v $(1)),true,false)
+HAS_DOCKER := $(call CHECK_CMD,docker)
+
+# Determine current directory.
+PWD := $(ifeq ($(UNAME), Windows),$(shell echo %cd%),$(shell pwd))
+
 # define standard colors
 b       := $(shell tput bold)
 black   := $(shell tput setaf 0)
@@ -85,17 +92,17 @@ checks: links vale
 .PHONY: links
 ## Run htmltest to validate HTML links:
 ## - https://github.com/wjdp/htmltest
-## @param EXTERNAL=true Check external links too.
+## @param LOCAL=true Only check local links.
 links: ${buildDir}/index.html
-ifeq ($(UNAME), Windows)
-	@echo "${alert}Cannot check HTML links, skipping...${r}"
-else
+ifeq (true,$(HAS_DOCKER))
 	@echo "${heading}Checking HTML links...${r}"
-ifdef EXTERNAL
-	adt/bin/htmltest -c adt/htmltest/config-external.yml ${buildDir}
+ifdef LOCAL
+	@docker run --rm -l error -v $(PWD)/$(buildDir):/test -v $(PWD)/adt/htmltest:/config wjdp/htmltest -c /config/config.yml -s /test
 else
-	adt/bin/htmltest -c adt/htmltest/config.yml ${buildDir}
+	@docker run --rm -l error -v $(PWD)/$(buildDir):/test -v $(PWD)/adt/htmltest:/config wjdp/htmltest -c /config/config.yml /test
 endif
+else
+	@echo "${alert}Link checking disabled because Docker is not available!${r}"
 endif
 
 .PHONY: vale
@@ -103,11 +110,13 @@ endif
 ## - https://github.com/errata-ai/vale
 ## - https://vale.sh/docs/vale-cli/installation/
 vale: ${buildDir}/index.html
+ifeq (true,$(HAS_DOCKER))
 	@echo "${heading}Checking for spelling/language issues in HTML...${r}"
-ifdef (QUICK)
-	@node adt/bin/vale_modified_files.js
+	docker run --rm -v $(PWD):/docs -w /docs jdkato/vale ${buildDir}
+# ifdef (QUICK)
+# 	@node adt/bin/vale_modified_files.js
 else
-	@adt/bin/vale --config adt/vale/vale.ini ${buildDir}
+	@echo "${alert}Spelling/language checks disabled because Docker is not available!${r}"
 endif
 
 
@@ -119,6 +128,15 @@ endif
 clean:
 	@echo "${heading}Cleaning build artifacts...${r}"
 	rm -rf ${buildDir}
+
+.PHONY: docker
+## Fetch/update the required Docker images
+docker:
+	@echo "${heading}Updating Docker images...${r}"
+	docker pull jdkato/vale
+	docker pull wjdp/htmltest
+# Sync the Vale styles declared in .vale.ini
+	docker run --rm -v $(shell pwd):/docs -w /docs jdkato/vale sync
 
 .PHONY: updateadt
 ## Update ADT by removing it and reinstalling
