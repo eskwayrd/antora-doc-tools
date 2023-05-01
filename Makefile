@@ -129,15 +129,6 @@ clean:
 	@echo "${heading}Cleaning build artifacts...${r}"
 	rm -rf ${buildDir}
 
-.PHONY: docker
-## Fetch/update the required Docker images
-docker:
-	@echo "${heading}Updating Docker images...${r}"
-	docker pull jdkato/vale
-	docker pull wjdp/htmltest
-# Sync the Vale styles declared in .vale.ini
-	docker run --rm -v $(shell pwd):/docs -w /docs jdkato/vale sync
-
 .PHONY: updateadt
 ## Update ADT by removing it and reinstalling
 updateadt:

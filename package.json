@@ -27,6 +27,7 @@
     "@antora/cli": "3.1.2",
     "@antora/site-generator": "3.1.2",
     "ava": "5.2.0",
+    "axios": "1.4.0",
     "chalk": "4.1.2",
     "elapsed-time": "0.0.1",
     "gently-copy": "3.2.0",
