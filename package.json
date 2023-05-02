@@ -20,12 +20,14 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf bin",
-    "postinstall": "echo $INIT_CWD && node adt/postInstall.js",
+    "prepare": "echo $INIT_CWD && node postInstall.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@antora/cli": "3.1.2",
     "@antora/site-generator": "3.1.2",
+    "adt-htmltest": "github:eskwayrd/adt-htmltest",
+    "adt-vale": "github:eskwayrd/adt-vale",
     "ava": "5.2.0",
     "axios": "1.4.0",
     "chalk": "4.1.2",

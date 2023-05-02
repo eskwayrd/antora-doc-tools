@@ -4,7 +4,6 @@
 
 'use strict'
 
-const axios   = require('axios')
 const chalk   = require('chalk')
 const fs      = require('fs')
 const gc      = require('gently-copy')
@@ -24,41 +23,6 @@ const cwd = process.env.INIT_CWD
   ? process.env.INIT_CWD
   : process.cwd()
 u.debug(`cwd: ${cwd}`)
-
-const arch = process.arch
-const platform = process.platform
-
-const htmltestVersion = '0.17.0'
-const valeVersion = '2.25.2'
-
-const targetFolder = 'bin'
-
-// Returns the release-specific platform string based on platform
-const mapPlatform = (map = {}) => {
-  if (!(platform in map)) return null
-  return map[platform]
-}
-
-// Returns the release-specific arch string based on arch
-const mapArch = (map = {}) => {
-  if (!(arch in map)) return null
-  return map[arch]
-}
-
-const ls = (dir) => {
-  //passsing directoryPath and callback function
-  fs.readdir(dir, function (err, files) {
-    //handling error
-    if (err) {
-      return console.log('Unable to scan directory: ' + err);
-    }
-    //listing all files using forEach
-    files.forEach(function (file) {
-        // Do whatever you want to do with the file
-        console.log(file);
-    })
-  })
-}
 
 // copy adt to project root
 const setupADT = () => {
@@ -176,10 +140,6 @@ const setupADT = () => {
   //    fs.closeSync(fh)
   //  }
 
-  console.log('-='.repeat(30))
-  ls(cwd)
-  console.log('=-'.repeat(30))
-
   const valeDir = path.join(cwd, 'Vale')
   if (!fs.existsSync(valeDir)) {
     fs.mkdirSync(valeDir)
@@ -206,99 +166,4 @@ const setupADT = () => {
   }
 }
 
-const getRelease = async (user, repo, version, platform, arch, ext, targetDir) => {
-  if (ext !== 'tar.gz' && ext !== 'zip') {
-    console.log(`Don't know how to handle a .${ext} file!`)
-    return
-  }
-
-  const url = `https://github.com/${user}/${repo}/releases/download/v${version}/${repo}_${version}_${platform}_${arch}.${ext}`
-  const tempdir = tmp.dirSync({ unsafeCleanup: true })
-  const filename = path.basename(url)
-  const archive = path.join(tempdir.name, filename)
-
-  console.log(`Downloading ${user}/${repo}...`)
-  const res = await axios.get(url, { responseType: 'arraybuffer' })
-    .then((res) => res)
-    .catch((err) => console.log(`Error:`, err))
-  fs.writeFileSync(archive, res.data)
-
-  console.log(`Decompressing ${repo}...`)
-  const env = { MYCWD: tempdir.name }
-  if (ext === 'tar.gz') {
-    const command = `tar zxf ${archive}`
-    u.debug(command)
-    var [ output, errors, kill, stat ] = u.run(command, env, 2)
-    if (errors.length) {
-      console.log(`'${command}' failed:`, errors)
-      return
-    }
-  }
-  else {
-    const command = `unzip ${archive}`
-    u.debug(command)
-    var [ output, errors, kill, stat ] = u.run(command, env, 2)
-    if (errors.length) {
-      console.log(`'${command}' failed:`, errors)
-      return
-    }
-  }
-
-  console.log(`Rename into place...`)
-  const source = path.join(tempdir.name, repo)
-  const dest = path.join(targetDir, repo)
-
-  if (!fs.existsSync(targetDir)) {
-    fs.mkdirSync(targetDir)
-  }
-  fs.copyFileSync(source, dest)
-
-  tempdir.removeCallback()
-  console.log(`Done ${repo}.`)
-}
-
-const htmltest = async () => {
-  // htmltest does not release Windows versions
-  const p = mapPlatform({
-    'darwin': 'macos',
-    'linux': 'linux',
-    'openbsd': 'openbsd',
-  })
-
-  const a = mapArch({
-    'x64': 'amd64',
-    'arm64': 'arm64',
-  })
-
-  if (!p || !a) {
-    console.log(`No htmltest release available for $${platform}/${arch}.`)
-    return
-  }
-
-  getRelease('wjdp', 'htmltest', htmltestVersion, p, a, 'tar.gz', targetFolder)
-}
-
-const vale = async () => {
-  const p = mapPlatform({
-    'darwin': 'macOS',
-    'linux': 'Linux',
-    'win32': 'Windows'
-  })
-
-  const a = mapArch({
-    'x64': '64-bit',
-    'arm64': 'arm64',
-  })
-
-  if (!p || !a) {
-    console.log(`No vale release available for ${platform}/${arch}.`)
-    return
-  }
-
-  const ext = p === 'Windows' ? 'zip' : 'tar.gz'
-  getRelease('errata-ai', 'vale', valeVersion, p, a, ext, targetFolder)
-}
-
 setupADT()
-htmltest()
-vale()
