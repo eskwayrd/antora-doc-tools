@@ -1,18 +1,17 @@
 #!/usr/bin/env node
 
-// Post-installation steps for the doc tools
+// Sets up ADT for use in a project.
 
 'use strict'
 
 const chalk   = require('chalk')
 const fs      = require('fs')
-const gc      = require('gently-copy')
 const path    = require('path')
 const tmp     = require('tmp')
 const hasbin  = require('hasbin')
 const u       = require('./utils')
 
-u.DEBUG_PREFIX = 'postInstall'
+u.DEBUG_PREFIX = 'ADT setup'
 
 // process arguments
 var argv = require('minimist')(process.argv.slice(2))
