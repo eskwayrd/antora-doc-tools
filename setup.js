@@ -12,157 +12,106 @@ const hasbin  = require('hasbin')
 const u       = require('./utils')
 
 u.DEBUG_PREFIX = 'ADT setup'
+const OK = chalk.green('OK!')
+const NOTE = chalk.yellow
 
 // process arguments
 var argv = require('minimist')(process.argv.slice(2))
 if ('v' in argv) u.DEBUG = true
 u.DEBUG = true
 
-const cwd = process.env.INIT_CWD
-  ? process.env.INIT_CWD
-  : process.cwd()
+const cwd = process.cwd()
 u.debug(`cwd: ${cwd}`)
 
+const adtPath = path.join(cwd, 'adt')
+u.debug(`adtPath: ${adtPath}`)
+u.debug(`scriptPath:`, __dirname)
+
+const copyADTFile = (src, dest) => {
+  const srcPath = path.join(adtPath, src)
+  const destPath = path.join(cwd, dest)
+  if (fs.existsSync(destPath)) {
+    return false
+  }
+  else {
+    fs.copyFileSync(srcPath, destPath)
+    return true
+  }
+}
+
 // copy adt to project root
-const setupADT = () => {
-  var linked = false
+const setupADT = async () => {
+  console.log(chalk.cyan('Setting up Antora Doc Tools...'))
 
-  const adtPath = path.join(cwd, 'adt')
-  const nmPath = path.join('node_modules', 'antora-doc-tools')
-  u.debug(`adtPath: ${adtPath}`)
-  u.debug(`scriptPath:`, __dirname)
-  const vPath = path.join(__dirname, 'vale')
-  if (fs.existsSync(vPath)) {
-    console.log(`${vPath} exists!`)
-  }
-  else {
-    console.log(`${vPath} MISSING!`)
-  }
-
-  if (fs.existsSync(adtPath)) {
-    const stats = fs.lstatSync(adtPath)
-    if (stats.isSymbolicLink()) {
-      linked = true
-      u.debug(`${adtPath} already exists... skip link`)
-    }
-    else {
-      // probably a local copy
-      linked = true
-      u.log(`${adtPath} is a folder, which might contain local modifications... skip link`)
-    }
-  }
-  else {
-    u.debug(`Symlinking ADT assets...`)
-    fs.symlinkSync(
-      path.join(nmPath, 'adt'),
-      adtPath
-    )
-    fs.symlinkSync(
-      path.join(nmPath, 'Makefile'),
-      path.join(cwd, 'Makefile')
-    )
-    // const toCopy = ['./adt', './Makefile']
-    // u.debug(`Copying ADT assets ${toCopy}`)
-    // gc(toCopy, cwd, { overwrite: true })
-    linked = true
-  }
+  u.print(`Establishing Makefile...`)
+  const mfStatus = copyADTFile('Makefile.example', 'Makefile')
+  console.log(mfStatus ? OK : NOTE(`NOTICE:
+A Makefile already exists. Compare the adt/Makefile.example with the
+current Makefile to see which targets you need.
+`))
 
   // create the dictionary folder if it does not exist
-  u.debug(`Checking for existence of the dictionaries folder...`)
+  u.print(`Dictionaries: `)
   const dictDir = path.join(cwd, 'dictionaries')
   if (!fs.existsSync(dictDir)) {
-    // Prior to vale 2.24.5, symlinks in Vale's dictPath could not be
-    // symlinks, so copying the dictionary folder was required.
-    // u.debug(`Creating ${dictDir}`)
-    // const toCopy = ['./adt/dictionaries']
-    // gc(toCopy, cwd)
-
     fs.mkdirSync(dictDir)
   }
 
-  u.debug(`Handling the large English dictionary...`)
-  const antDicts = path.join(nmPath, 'dictionaries')
+  const adtDicts = path.join(adtPath, 'dictionaries')
   const enUS = 'en_US-large'
   const dictEnPath = path.join(dictDir, `${enUS}.dic`)
-  if (!fs.existsSync(dictEnPath)) {
-    u.debug('Symlinking the large English dictionary files...')
-    fs.symlinkSync(
-      path.join(antDicts, `${enUS}.dic`),
-      dictEnPath
-    )
-    fs.symlinkSync(
-      path.join(antDicts, `${enUS}.aff`),
-      path.join(dictDir, `${enUS}.aff`)
-    )
+
+  const notes = []
+  const enDicFile = path.join('dictionaries', 'en_US-large.dic')
+  const enDicStatus = copyADTFile(enDicFile, enDicFile)
+  if (!enDicStatus) notes.push(`An en_US-large.dic file already exists.`)
+
+  const enAffFile = path.join('dictionaries', 'en_US-large.aff')
+  const enAffStatus = copyADTFile(enAffFile, enAffFile)
+  if (!enAffStatus) notes.push(`An en_US-large.aff file already exists.`)
+
+  const antDicFile = path.join('dictionaries', 'antora.dic')
+  const antDicStatus = copyADTFile(antDicFile, antDicFile)
+  if (!antDicStatus) notes.push(`An antora.dic file already exists.`)
+
+  const antAffFile = path.join('dictionaries', 'antora.dic')
+  const antAffStatus = copyADTFile(antAffFile, antAffFile)
+  if (!antAffStatus) notes.push(`An antora.aff file already exists.`)
+
+  const localDicFile = path.join('dictionaries', 'local.dic')
+  const localDicStatus = copyADTFile(localDicFile, localDicFile)
+  if (!localDicStatus) notes.push(`An local.dic file already exists.`)
+
+  const localAffFile = path.join('dictionaries', 'local.dic')
+  const localAffStatus = copyADTFile(localAffFile, localAffFile)
+  if (!localAffStatus) notes.push(`An local.aff file already exists.`)
+
+  console.log(notes.length ? NOTE(`NOTICE:\n` + notes.join(`\n`)) : OK)
+
+  u.print(`Vale: `)
+  const valeDir = path.join(cwd, 'vale')
+  if (fs.existsSync(valeDir)) {
+    console.log(`NOTICE:
+A vale directory already exists. Compare the adt/vale.ini for style packages
+that may need to be included/defined.
+`)
   }
-
-  u.debug(`Handling the Antora dictionary...`)
-  const antDic = 'antora'
-  const dictAntPath = path.join(dictDir, `${antDic}.dic`)
-  if (!fs.existsSync(dictAntPath)) {
-    u.debug('Symlinking the Antora dictionary files...')
-    fs.symlinkSync(
-      path.join(antDicts, `${antDic}.dic`),
-      dictAntPath
-    )
-    fs.symlinkSync(
-      path.join(antDicts, `${antDic}.aff`),
-      path.join(dictDir, `${antDic}.aff`)
-    )
-  }
-
-  u.debug(`Handling the local dictionary...`)
-  const locDic = 'local'
-  const dictLocPath = path.join(dictDir, `${locDic}.dic`)
-  if (!fs.existsSync(dictEnPath)) {
-    u.debug('Symlinking the local dictionary files...')
-    fs.symlinkSync(
-      path.join(antDicts, `${locDic}.dic`),
-      dictLocPath
-    )
-    // Editing affix files is pretty rare, so just re-use the Antora
-    // affixes for the local dictionary.
-    fs.symlinkSync(
-      path.join(antDicts, `${locDic}.aff`),
-      path.join(dictDir, `${locDic}.aff`)
-    )
-  }
-
-  //  // create the local dictionary if it does not exist
-  //  const localDict = path.join(dictDir, 'local.dic')
-  //  const localDictAff = path.join(dictDir, 'local.aff')
-  //  if (!fs.existsSync(localDict)) {
-  //    u.debug(`Creating ${localDict}`)
-  //    let fh = fs.openSync(localDict, 'a')
-  //    fs.closeSync(fh)
-  //    fh = fs.openSync(localDictAff, 'a')
-  //    fs.closeSync(fh)
-  //  }
-
-  const valeDir = path.join(cwd, 'Vale')
-  if (!fs.existsSync(valeDir)) {
+  else {
     fs.mkdirSync(valeDir)
+
+    const valeStatus = copyADTFile('vale.ini', path.join('vale', 'vale.ini'))
+    console.log(OK)
   }
 
-  const valeConfig = path.join(valeDir, '.vale.ini')
-  if (!fs.existsSync(valeConfig)) {
-    u.debug(`Copying Vale configuration`)
-    fs.copyFileSync(
-      path.join(nmPath, 'vale', 'vale.ini'),
-      path.join(cwd, 'Vale', '.vale.ini')
-    )
-  }
+  u.print('htmltest: ')
+  const htStatus = copyADTFile('htmltest.yml', 'htmltest.yml')
+  console.log(OK)
 
-  const htmltestConfig = path.join(cwd, 'htmltest.yml')
-  if (!fs.existsSync(htmltestConfig)) {
-    u.debug(`Copying htmltest configuration`)
-    const toCopy = ['./adt/htmltest.yml']
-    gc(toCopy, cwd)
-  }
-
-  if (linked) {
-    u.log(chalk.green('OK'))
-  }
+  // TODO
+  // antora-playbook.yml
+  // antora-assembler.yml
+  // ruby
+  // asciidoctor pdf
 }
 
 setupADT()

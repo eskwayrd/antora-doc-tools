@@ -110,6 +110,14 @@ const log = (...msgs) => {
 }
 
 // --------------------------------------------------------------------
+// Emit output without newline.
+const print = (...msgs) => {
+  for (let m of msgs) {
+    process.stdout.write(m)
+  }
+}
+
+// --------------------------------------------------------------------
 // Get the current elapsed interval from the timer
 const exit = (state) => {
   console.log(`Terminated after ${elapsedTimer()}`)
@@ -440,6 +448,7 @@ module.exports = {
   minIndent,
   modifiedFiles,
   myTypeOf,
+  print,
   run,
   s,
   startTimer,

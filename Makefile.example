@@ -12,7 +12,7 @@ endif
 
 # Docker available?
 CHECK_CMD = $(if $(shell command -v $(1)),true,false)
-HAS_DOCKER := $(call CHECK_CMD,docker)
+HAS_HTMLTEST := $(call CHECK_CMD,bin/htmltest)
 
 # Determine current directory.
 PWD := $(ifeq ($(UNAME), Windows),$(shell echo %cd%),$(shell pwd))
@@ -94,15 +94,15 @@ checks: links vale
 ## - https://github.com/wjdp/htmltest
 ## @param LOCAL=true Only check local links.
 links: ${buildDir}/index.html
-ifeq (true,$(HAS_DOCKER))
+ifeq (true,$(HAS_HTMLTEST))
 	@echo "${heading}Checking HTML links...${r}"
 ifdef LOCAL
-	@docker run --rm -l error -v $(PWD)/$(buildDir):/test -v $(PWD)/adt/htmltest:/config wjdp/htmltest -c /config/config.yml -s /test
+	@bin/htmltest -c htmltest.yml -s ${buildDir}
 else
-	@docker run --rm -l error -v $(PWD)/$(buildDir):/test -v $(PWD)/adt/htmltest:/config wjdp/htmltest -c /config/config.yml /test
+	@bin/htmltest -c htmltest.yml ${buildDir}
 endif
 else
-	@echo "${alert}Link checking disabled because Docker is not available!${r}"
+	@echo "${alert}Link checking disabled because htmltest is not available!${r}"
 endif
 
 .PHONY: vale
@@ -110,14 +110,10 @@ endif
 ## - https://github.com/errata-ai/vale
 ## - https://vale.sh/docs/vale-cli/installation/
 vale: ${buildDir}/index.html
-ifeq (true,$(HAS_DOCKER))
 	@echo "${heading}Checking for spelling/language issues in HTML...${r}"
-	docker run --rm -v $(PWD):/docs -w /docs jdkato/vale ${buildDir}
+	bin/vale --config vale/vale.ini ${buildDir}
 # ifdef (QUICK)
 # 	@node adt/bin/vale_modified_files.js
-else
-	@echo "${alert}Spelling/language checks disabled because Docker is not available!${r}"
-endif
 
 
 # ---------------------------------------------------------------------
