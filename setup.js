@@ -41,6 +41,7 @@ const foldersToCreate = [
 
 // Files from ADT to copy into the project folder. { src: dest }
 const filesToCopy = {
+  '.gitignore':               '.gitignore',
   'Makefile.example':         'Makefile',
   'htmltest.yml':             'htmltest.yml',
   'antora-playbook.example':  'antora-playbook.yml',
