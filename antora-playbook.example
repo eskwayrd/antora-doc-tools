@@ -1,0 +1,51 @@
+site:
+  title: enter Title here
+  url: enter site URL here
+  start_page: enter the pageID of the "home" page here
+content:
+  sources:
+  - url: ./
+    branches: HEAD
+    start_path: docs/
+  # - url: https://gitlab.com/antora/antora.git
+  #   start_path: docs
+  #   branches: v3.+({0..9}).x
+  # - url: https://gitlab.com/antora/antora-ui-default.git
+  #   start_path: docs
+  #   branches: HEAD
+asciidoc:
+  attributes:
+    experimental: ''
+    idprefix: ''
+    idseparator: '-'
+    linksattrs: ''
+    'source-highlighter': 'prism'
+    SITE_SEARCH_PROVIDER: pagefind
+ui:
+  bundle:
+    url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/HEAD/raw/build/ui-bundle.zip?job=bundle-stable
+    snapshot: true
+output:
+  dir: ./build
+urls:
+  redirect_facility: netlify
+antora:
+  extensions:
+  - require: './adt/extensions/antora/ventilated_prose'
+    enabled: true
+    debug: false
+    remote: false
+  - require: './adt/extensions/antora/repeated_words'
+    enabled: true
+    debug: false
+    remote: false
+  - require: './adt/extensions/antora/style_check'
+    enabled: true
+    debug: false
+    remote: false
+  - require: './adt/extensions/antora/detectAssembler'
+    enabled: true
+    debug: false
+  - require: '@antora/pdf-extension'
+    enabled: true
+    debug: false

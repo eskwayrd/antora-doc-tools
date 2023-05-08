@@ -4,7 +4,6 @@ const chalk   = require('chalk')
 const fs      = require('fs')
 const path    = require('path')
 const exec    = require('child_process').execSync
-const tmp     = require('tmp')
 const util    = require('util')
 const Elapsed = require('elapsed-time')
 const YAML    = require('yaml')
@@ -127,6 +126,23 @@ const exit = (state) => {
 // --------------------------------------------------------------------
 // Express plural/singular
 const s = (num = 0) => num === 1 ? '' : 's'
+
+
+// --------------------------------------------------------------------
+// Strip ANSI, based on the strip-ansi package, but with ESM
+// requirement.
+const ansiRegex = ({onlyFirst = false} = {}) => {
+  const pattern = [
+      '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
+          '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))'
+  ].join('|')
+
+  return new RegExp(pattern, onlyFirst ? undefined : 'g')
+}
+
+const stripAnsi = (string) => {
+  return string.replace(ansiRegex(), '')
+}
 
 
 // --------------------------------------------------------------------
@@ -289,15 +305,9 @@ const modifiedFiles = () => {
 const run = (command, localEnv = {}, ignoreStatus = 0) => {
   var output = ''
 
-  // prepare a temp file to store command output+errors
-  var stdFile = tmp.fileSync({ keep: true })
-  var errFile = tmp.fileSync({ keep: true })
-
   // merge the current process environment with the specified env
   var env = Object.assign({}, process.env, localEnv)
   debug(`Command: "${command}"`)
-  debug(`stdout file: "${stdFile.name}"`)
-  debug(`stderr file: "${errFile.name}"`)
   debug(`local env:`, localEnv)
 
   var mycwd = 'MYCWD' in env ? env.MYCWD : process.cwd()
@@ -307,13 +317,14 @@ const run = (command, localEnv = {}, ignoreStatus = 0) => {
   var errorOutput = ''
   var stat = 0
   var kill = false
+  var result
 
   try {
-    exec(command, {
+    result = exec(command, {
       cwd: mycwd,
-      stdio: [process.stdin, stdFile, errFile],
       env: env,
     })
+    output += result.toString()
   }
   catch (err) {
     var complain = true
@@ -352,14 +363,6 @@ const run = (command, localEnv = {}, ignoreStatus = 0) => {
         util.inspect(env, { depth: null })
       errored = true
     }
-  }
-
-  // read in the captured output
-  errorOutput += fs.readFileSync(errFile.name, 'utf8')
-
-  var captured = fs.readFileSync(stdFile.name, 'utf8')
-  if (captured.length) {
-    output += captured
   }
 
   if (errored || complain) {
@@ -452,5 +455,6 @@ module.exports = {
   run,
   s,
   startTimer,
+  stripAnsi,
   usage,
 }

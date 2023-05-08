@@ -1,0 +1,20 @@
+root_level: 0
+component_versions: '*'
+section_merge_strategy: fuse
+asciidoc:
+  attributes:
+    # pdf-theme: ./pdf/theme.yml
+    # pdf-fontsdir: ./pdf/fonts
+    allow-uri-read: ''
+    kroki-fetch-diagram: ~
+    source-highlighter: rouge
+    chapter-signifier: ''
+    sectnums: ''
+    sectnumlevels: 1
+    toc: auto
+    toclevels: 3
+    media: prepress
+    compress: ''
+build:
+  command: bundle exec asciidoctor-pdf --trace --sourcemap -r asciidoctor-kroki
+  keep_aggregate_source: true
