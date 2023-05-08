@@ -95,7 +95,8 @@ const createFolders = () => {
 }
 
 const valeSync = () => {
-  const [ output, errors, kill, stat ] = u.run('bin/vale --config vale/vale.ini sync', {})
+  const valePath = path.join('bin', 'vale')
+  const [ output, errors, kill, stat ] = u.run(`${valePath} --config vale/vale.ini sync`, {})
   u.debug(`Vale sync output:`, output)
   reports.push({
     label: 'Vale',
