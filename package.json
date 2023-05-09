@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@antora/cli": "3.1.2",
+    "@antora/pdf-extension": "^1.0.0-alpha.6",
     "@antora/site-generator": "3.1.2",
     "adt-htmltest": "github:eskwayrd/adt-htmltest",
     "adt-vale": "github:eskwayrd/adt-vale",
