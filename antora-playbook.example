@@ -27,8 +27,6 @@ ui:
     snapshot: true
 output:
   dir: ./build
-urls:
-  redirect_facility: netlify
 antora:
   extensions:
   - require: './adt/extensions/antora/ventilated_prose'
