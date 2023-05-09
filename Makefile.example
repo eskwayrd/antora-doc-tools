@@ -10,7 +10,7 @@ else
   UNAME := $(patsubst MINGW%,MSYS,$(UNAME))
 endif
 
-# Docker available?
+# htmltest available?
 CHECK_CMD = $(if $(shell command -v $(1)),true,false)
 HAS_HTMLTEST := $(call CHECK_CMD,bin/htmltest)
 
@@ -46,7 +46,7 @@ SOURCES += antora-playbook.yml
 .PHONY: docs
 ## Build the documentation, run the checks, then preview the site.
 ## @param FORCE=true Force HTML generation.
-docs: html checks preview
+docs: html pagefind checks preview
 
 .PHONY: html
 ## Build HTML for the documentation with Antora:
@@ -81,6 +81,12 @@ ${buildDir}/index.html: ${SOURCES}
 	npx antora --stacktrace --fetch antora-playbook.yml
 	@touch -m ${buildDir}/index.html
 
+.PHONY: pagefind
+## Builds search indexes for the generated HTML.
+pagefind: html
+	@echo "${heading}Generating search indexes...${r}"
+	npx pagefind -s ${buildDir} --root-selector article.doc
+
 
 # ---------------------------------------------------------------------
 ## @section Validation targets
@@ -92,14 +98,14 @@ checks: links vale
 .PHONY: links
 ## Run htmltest to validate HTML links:
 ## - https://github.com/wjdp/htmltest
-## @param LOCAL=true Only check local links.
+## @param REMOTE=true Also check remote links.
 links: ${buildDir}/index.html
 ifeq (true,$(HAS_HTMLTEST))
 	@echo "${heading}Checking HTML links...${r}"
-ifdef LOCAL
-	@bin/htmltest -c htmltest.yml -s ${buildDir}
-else
+ifdef REMOTE
 	@bin/htmltest -c htmltest.yml ${buildDir}
+else
+	@bin/htmltest -c htmltest.yml -s ${buildDir}
 endif
 else
 	@echo "${alert}Link checking disabled because htmltest is not available!${r}"
@@ -136,7 +142,7 @@ updateadt:
 ## Start a web server to preview the documentation.
 serve: force html
 	@echo "${heading}Starting web server...${r}"
-	npx http-server ./${buildDir} -r -x-1 -g
+	npx http-server ./${buildDir} -r -c-1 -g
 
 .PHONY: test
 ## Run the extension tests.
