@@ -73,7 +73,7 @@ const check = (contents) => {
     }
 
     // skip headings
-    if (line.match(/^=+ ([0-9{]|[A-Z]|[a-z][A-Z]).+$/)) {
+    if (line.match(/^=+ ([0-9{]|[A-Z]|[a-z][A-Z]|xref:).+$/)) {
       u.debug('Is heading, skipping...')
       return
     }
@@ -154,12 +154,15 @@ const check = (contents) => {
     line = line.replace(/<<[^,]+,([^>]+)>>/, "$1") // with custom title
 
     // Remove Asciidoc macros
-
     line = line.replace(imageRE, "")
     line = line.replace(longMacroRE, (...found) => { return found[2] || "Title" })
     line = line.replace(shortMacroRE, "")
 
-    u.debug('After removals:', line)
+    // Remove inline monospace, since the content likely needs to be
+    // as-is.
+    line = line.replace(/`[^`]+`/, "") // `
+
+    u.debug('After removals:', `-=-${line}=-=`)
 
     // Skip blank lines
     if (line.match(/^\s*$/)) {
@@ -171,7 +174,7 @@ const check = (contents) => {
     let lEnd = false
     let lMid = false
 
-    if (!line.match(/\s*([0-9{\\*_`]|[A-Z]|[a-z][A-Z]).+$/)) { //`
+    if (!line.match(/\s*(:|([0-9{\\*_`:]|[A-Z]|[a-z][A-Z]).+)$/)) { //`
       u.debug(`Sentence start error!`)
       lStart = true
     }
