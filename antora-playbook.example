@@ -41,6 +41,10 @@ antora:
     enabled: true
     debug: false
     remote: false
+  - require: './adt/extensions/antora/images'
+    enabled: true
+    debug: false
+    remote: false
   - require: './adt/extensions/antora/detectAssembler'
     enabled: true
     debug: false
