@@ -73,7 +73,7 @@ const check = (contents) => {
     }
 
     // skip headings
-    if (line.match(/^=+ ([0-9{]|[A-Z]|[a-z][A-Z]|xref:).+$/)) {
+    if (line.match(/^=+ ([0-9{`]|[A-Z]|[a-z][A-Z]|xref:).+$/)) { //`
       u.debug('Is heading, skipping...')
       return
     }
@@ -138,6 +138,12 @@ const check = (contents) => {
       return
     }
 
+    // skip list items containing only inline monospace
+    if (line.match(/^[.*-]+\s*`[^`]+`$/)) { //`
+      u.debug('Is list item with inline monospace, skipping...')
+      return
+    }
+
     const origLine = line
 
     // Remove leading list markers
@@ -158,9 +164,9 @@ const check = (contents) => {
     line = line.replace(longMacroRE, (...found) => { return found[2] || "Title" })
     line = line.replace(shortMacroRE, "")
 
-    // Remove inline monospace, since the content likely needs to be
-    // as-is.
-    line = line.replace(/`[^`]+`/, "") // `
+    // Replace inline monospace with a valid-seeming word, since the
+    // content likely needs to be as-is.
+    line = line.replace(/`[^`]+`/, "A") // `
 
     u.debug('After removals:', `-=-${line}=-=`)
 
@@ -179,7 +185,7 @@ const check = (contents) => {
       lStart = true
     }
 
-    if (!line.match(/[.?!:`)]$/)) { //`
+    if (!line.match(/[.?!:`")]$/)) { //`
       u.debug(`Sentence end error!`)
       lEnd = true
     }
