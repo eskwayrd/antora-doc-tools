@@ -84,6 +84,12 @@ const check = (contents) => {
       return
     }
 
+    // skip includes
+    if (line.match(/^include::[^[]+\[[^\]]*\]$/)) {
+      u.debug('Is include, skipping...')
+      return
+    }
+
     // skip block title
     if (line.match(/\.[A-Z].*$/)) {
       u.debug('Is block title, skipping...')
@@ -122,11 +128,11 @@ const check = (contents) => {
 
     // skip table cells
     if (line.match(/^(\d+\+)?[|!](\s+|$)/)) {
-      u.debug('Is table cell, skipping...')
+      u.debug('Is only table cell, skipping...')
       return
     }
 
-    // skip list items containing only xrefs
+    // skip list items containing only xrefs/macros
     if (line.match(/^([.*-]+\s*)(audio|footnote|https?|icon|link|mailto|menu|pass|video|xref):[^\[]+\[([^\]]*)\]$/)) {
       u.debug('Is list item containing xref, skipping...')
       return
