@@ -11,7 +11,7 @@ const path  = require('path')
 const u     = require('./utils')
 const walk  = require('walk-sync')
 
-u.DEBUG = true
+u.DEBUG = false
 
 const playbook = u.getPlaybook()
 if (!playbook) {
