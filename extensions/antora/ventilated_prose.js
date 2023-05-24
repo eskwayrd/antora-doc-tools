@@ -25,6 +25,7 @@ const check = (contents) => {
   var inSource = false
   var delimiter = ''
   var mg
+  var vpSkip = false
 
   u.debug('Starting line processing...')
   const lines = contents.split(/\r?\n/)
@@ -33,7 +34,10 @@ const check = (contents) => {
   lines.map((line, index) => {
     u.debug(`Line ${index + 1}: -=-${line}=-=`)
     // skip blank lines
-    if (!line) return
+    if (!line) {
+      vpSkip = false
+      return
+    }
 
     u.debug(`not a blank line`)
 
@@ -78,9 +82,22 @@ const check = (contents) => {
       return
     }
 
+    // Handle skip comment
+    if (line.match(/^\/\/\s*VPSKIP/)) {
+      u.debug('Is VP skip comment, skipping...')
+      vpSkip = true
+      return
+    }
+
     // skip comments
     if (line.match(/^\/\//)) {
       u.debug('Is comment, skipping...')
+      return
+    }
+
+    // when vpSkip is true, skip processing until next blank line
+    if (vpSkip) {
+      u.debug('vpSkip enabled, skipping...')
       return
     }
 
